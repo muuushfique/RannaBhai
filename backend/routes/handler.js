@@ -66,4 +66,57 @@ router.post('/addTweet', (req, res) => {
     res.end('NA');
 });
 
+let currentIssues = [
+    {
+        id: 1,
+        title: "Climate Change Action Needed",
+        description: "Immediate action is required to combat climate change.",
+        urgency: "High",
+        location: "Global"
+    },
+    {
+        id: 2,
+        title: "Homelessness in Urban Areas",
+        description: "Increasing homelessness in cities is a major concern.",
+        urgency: "Medium",
+        location: "Urban Areas"
+    }
+];
+
+
+
+router.delete('/current-issues/:id', (req, res) => {
+    const { id } = req.params;
+    const issueIndex = currentIssues.findIndex(issue => issue.id == id);
+
+    if (issueIndex !== -1) {
+        currentIssues.splice(issueIndex, 1);
+        res.json({ message: "Current issue deleted successfully!" });
+    } else {
+        res.status(404).json({ message: "Current issue not found" });
+    }
+});
+
+// Route to update a current issue by ID
+router.put('/current-issues/:id', (req, res) => {
+    const { id } = req.params;
+    const issueIndex = currentIssues.findIndex(issue => issue.id == id);
+
+    if (issueIndex !== -1) {
+        const updatedIssue = {
+            id: currentIssues[issueIndex].id,
+            title: req.body.title || currentIssues[issueIndex].title,
+            description: req.body.description || currentIssues[issueIndex].description,
+            urgency: req.body.urgency || currentIssues[issueIndex].urgency,
+            location: req.body.location || currentIssues[issueIndex].location
+        };
+
+        currentIssues[issueIndex] = updatedIssue;
+        res.json({ message: "Issue updated successfully!", issue: updatedIssue });
+    } else {
+        res.status(404).json({ message: "Current issue not found" });
+    }
+});
+
+
 module.exports = router;
