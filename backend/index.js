@@ -7,6 +7,12 @@ require('dotenv/config');
 const app = express();
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+
+const corsOptions = {
+    oritign: '*',
+    credentials: true,
+    optionSuccessStatus: 200
+}
 app.use('/', routesHandler);
 
 const PORT = process.env.PORT
@@ -14,6 +20,7 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 
+//MongoDB Connection
 const dbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,

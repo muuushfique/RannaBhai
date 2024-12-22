@@ -9,13 +9,16 @@ function Nav() {
       </div>
       <ul className="nav flex-column">
         <li className="nav-item">
-          <Link to="/" className="nav-link">Current Issues</Link>
+          <Link to="/" className="nav-link">Home Page</Link>
         </li>
         <li className="nav-item">
-          <Link to="/govt-issues" className="nav-link">Govt. Issues</Link>
+          <Link to="/govt-issues" className="nav-link">Trending Recipes</Link>
         </li>
         <li className="nav-item">
-          <Link to="/tweets" className="nav-link">Solved Issues</Link>
+          <Link to="/tweets" className="nav-link">Tweets</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/near-me" className="nav-link">Near Me</Link>
         </li>
         <li className="nav-item">
           <Link to="/reports" className="nav-link">Reports</Link>
