@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const routesHandler = require('./routes/handler.js');
 const mongoose = require('mongoose');
 require('dotenv/config');
+const cors = require('cors')
+
 
 const app = express();
 app.use(bodyParser.urlencoded({extended:false}));
@@ -13,7 +15,9 @@ const corsOptions = {
     credentials: true,
     optionSuccessStatus: 200
 }
-app.use('/', routesHandler);
+
+app.use(cors(corsOptions))
+app.use('/', routesHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

@@ -9,9 +9,9 @@ const userSchema = new Schema({
 })
 
 const contactSchema = new Schema({
-    email: {type:String, require:true},
-    website: {type:String, require:true},
-    message: {type:String, require:true},
+    email: {type:String,},
+    website: {type:String,},
+    message: {type:String,},
     entryDate: {type:Date, default:Date.now}
 })
 
@@ -19,6 +19,6 @@ const Users = mongoose.model('Users', userSchema, 'users')
 const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
 //exporting Schemas
-const mySchemas = {'User':User, 'Contact':Contact}
+const mySchemas = {'Users':Users, 'Contact':Contact}
 
-module.export = mySchemas
+module.exports = mySchemas
