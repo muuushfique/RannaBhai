@@ -15,10 +15,17 @@ const corsOptions = {
     credentials: true,
     optionSuccessStatus: 200
 }
+<<<<<<< HEAD
+app.use('/', routesHandler);
+// app.get('/', (req,res)=> {
+//     res.json({mssg:"Welcome"})
+// })
+=======
 
 app.use(cors(corsOptions))
 app.use('/', routesHandler)
 
+>>>>>>> 5754ad863923edbee688da072f095859a3e5f35b
 const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
