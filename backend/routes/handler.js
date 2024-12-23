@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const schemas = require('../models/schemas')
 
 router.get('/tweets', (req, res) => {
     const str = [
@@ -118,14 +119,14 @@ router.put('/current-issues/:id', (req, res) => {
     }
 });
 
+//For Contact-us
 router.post('/contact', async (req, res) => {
-    const {email, webstie, message} = req.body
+    const {email, website, message} = req.body
     
     const contactData = {email: email, website: website, message:message}
-    const newContact = new SchemaTypes.Conact(contactData)
+    const newContact = new schemas.Contact(contactData)
     const saveContact = await newContact.save()
     if (saveContact) {
-        console.log(email = ' | ' + website + ' | ' + message)
         res.send('Message sent. Thank you.')
     }
     else{
@@ -205,7 +206,7 @@ router.get('/users', (req, res) => {
               "catchPhrase": "Face to face bifurcated interface",
               "bs": "e-enable strategic applications"
             }
-          }
+          },
     ]
     res.send(userData)
 
