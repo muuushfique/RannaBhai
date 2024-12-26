@@ -119,6 +119,22 @@ router.put('/current-issues/:id', (req, res) => {
     }
 });
 
+// Ammarah
+
+// router.post('/recipe', async (req, res) => {
+//     const {recipe_name, cuisine_type, nutrient_list, calorie_count} = req.body
+//     const recipeData = {recipe_name:recipe_name, cuisine_type:cuisine_type, nutrient_list:nutrient_list, calorie_count:calorie_count}
+
+//     const newRecipe = new schemas.Recipes(recipeData)
+//     const saveRecipe = await newRecipe.save()
+//     if (saveRecipe) {
+//         res.send('Message sent. Thank you.')
+//     }
+//     else{
+//         res.send('Failed to send message')
+//     }
+//     res.end()
+// })
 //For Contact-us
 router.post('/contact', async (req, res) => {
     const {email, website, message} = req.body
@@ -212,6 +228,49 @@ router.get('/users', (req, res) => {
 
     
 })
+
+router.get('/health', async (req, res) => {
+    try {
+        // Fetch all recommendations from the HealthRecom collection
+        const recommendations = await schemas.Recommendations.find();
+        
+        // Send the recommendations as a response
+        res.json(recommendations);
+    } catch (error) {
+        console.error('Error fetching health recommendations:', error);
+        res.status(500).json({ message: 'Failed to fetch health recommendations.' });
+    }
+});
+
+router.get('/recipes/:id', async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        res.json(recipe);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching recipe' });
+    }
+});
+router.post('/recipes/:id/reviews', async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        recipe.review_list.push(req.body);
+        await recipe.save();
+        res.json(req.body);
+    } catch (error) {
+        res.status(500).json({ message: 'Error posting review' });
+    }
+});
+router.get('/glossary/:word', async (req, res) => {
+    try {
+        const result = await Glossary.findOne({ word: req.params.word });
+        if (!result) {
+            return res.status(404).json({ message: 'Word not found' });
+        }
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: 'Error searching glossary' });
+    }
+});
 
 
 module.exports = router;
