@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const schemas = require('../models/schemas')
 
+
 router.get('/tweets', (req, res) => {
     const str = [
         {
@@ -119,23 +120,7 @@ router.put('/current-issues/:id', (req, res) => {
     }
 });
 
-// Ammarah
 
-// router.post('/recipe', async (req, res) => {
-//     const {recipe_name, cuisine_type, nutrient_list, calorie_count} = req.body
-//     const recipeData = {recipe_name:recipe_name, cuisine_type:cuisine_type, nutrient_list:nutrient_list, calorie_count:calorie_count}
-
-//     const newRecipe = new schemas.Recipes(recipeData)
-//     const saveRecipe = await newRecipe.save()
-//     if (saveRecipe) {
-//         res.send('Message sent. Thank you.')
-//     }
-//     else{
-//         res.send('Failed to send message')
-//     }
-//     res.end()
-// })
-//For Contact-us
 router.post('/contact', async (req, res) => {
     const {email, website, message} = req.body
     
@@ -242,7 +227,7 @@ router.get('/health', async (req, res) => {
     }
 });
 
-router.get('/recipes/:id', async (req, res) => {
+router.get('/recipe/:id', async (req, res) => {
     try {
         const recipe = await Recipe.findById(req.params.id);
         res.json(recipe);
@@ -250,7 +235,7 @@ router.get('/recipes/:id', async (req, res) => {
         res.status(500).json({ message: 'Error fetching recipe' });
     }
 });
-router.post('/recipes/:id/reviews', async (req, res) => {
+router.post('/recipe/:id/reviews', async (req, res) => {
     try {
         const recipe = await Recipe.findById(req.params.id);
         recipe.review_list.push(req.body);
@@ -272,5 +257,22 @@ router.get('/glossary/:word', async (req, res) => {
     }
 });
 
+
+//Search for a recipe by name
+router.get('/Search', async (req, res) => {
+  try {
+    const { q } = req.query; // Extract the search query
+    const recipe = await recipe.findOne({ recipe_name: q }); // Search for the recipe by name
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+
+    res.json(recipe); // Return the recipe if found
+  } catch (error) {
+    console.error('Error fetching recipe:', error);
+    res.status(500).json({ message: 'Error searching for recipe.' });
+  }
+});
 
 module.exports = router;

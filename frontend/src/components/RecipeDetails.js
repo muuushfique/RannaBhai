@@ -14,7 +14,7 @@ const RecipeDetails = () => {
     // Fetch the recipe by ID
     const fetchRecipe = async () => {
       try {
-        const response = await axios.get(`/api/recipes/${id}`); // Call backend API
+        const response = await axios.get(`/api/recipe/${id}`); // Call backend API
         setRecipe(response.data);
       } catch (err) {
         setError(err.response ? err.response.data.message : "Error fetching recipe");

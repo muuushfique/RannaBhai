@@ -24,6 +24,9 @@ function Nav() {
           <Link to="/Search" className="nav-link">Search</Link>
         </li>
         <li className="nav-item">
+          <Link to="/Review" className="nav-link">Review</Link>
+        </li>
+        <li className="nav-item">
           <Link to="/HealthRecommendations" className="nav-link">HealthRecommendations</Link>
         </li>
         <li className="nav-item">
