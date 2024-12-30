@@ -6,9 +6,10 @@ import Tweet from './components/Tweet';
 import GovtIssues from './components/GovtIssues';
 import Contact from './components/Contact'
 import Nearme from './components/nearme'
-import Search from './components/Search'
+import Search from './components/Search' 
 import Review from './components/Review'
 import HealthRecommendations from './components/HealthRecommendations';
+import RecipeDetails from './components/RecipeDetails';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Nav />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/RecipeDetails/:id" element={<RecipeDetails />} />
           <Route path="/tweets" element={<Tweet />} />
           <Route path="/govt-issues" element={<GovtIssues />} />
           <Route path="contact-us" element={<Contact />} />

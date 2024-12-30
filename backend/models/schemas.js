@@ -79,8 +79,8 @@ const Users = mongoose.model('Users', userSchema, 'users')
 const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
 
-const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe')
 
+const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
 
 
 // Create a model for the "HealthRecom" collection

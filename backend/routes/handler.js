@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const schemas = require('../models/schemas')
-
-
+const Recipe = schemas.Recipe; 
 router.get('/tweets', (req, res) => {
     const str = [
         {
@@ -229,15 +228,19 @@ router.get('/health', async (req, res) => {
 
 router.get('/recipe/:id', async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        res.json(recipe);
+        const recipe = await Recipe.findById(req.params.id); // Fetch the recipe by ID
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+        res.json(recipe); // Return the recipe if found
     } catch (error) {
+        console.error('Error fetching recipe:', error);
         res.status(500).json({ message: 'Error fetching recipe' });
     }
 });
 router.post('/recipe/:id/reviews', async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
+        const recipe = await recipe.findById(req.params.id);
         recipe.review_list.push(req.body);
         await recipe.save();
         res.json(req.body);
@@ -259,20 +262,29 @@ router.get('/glossary/:word', async (req, res) => {
 
 
 //Search for a recipe by name
-router.get('/Search', async (req, res) => {
-  try {
-    const { q } = req.query; // Extract the search query
-    const recipe = await recipe.findOne({ recipe_name: q }); // Search for the recipe by name
-
-    if (!recipe) {
-      return res.status(404).json({ message: 'Recipe not found' });
+router.get('/search', async (req, res) => {
+    try {
+      const { q } = req.query; // Extract the search query
+  
+      // Validate the search query
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ message: 'Invalid search query' });
+      }
+  
+      console.log(`Searching for recipe: ${q}`); // Log the search query
+  
+      // Perform a case-insensitive search
+      const recipe = await Recipe.findOne({ recipe_name: { $regex: new RegExp(`^${q}$`, 'i') } });
+  
+      if (!recipe) {
+        return res.status(404).json({ message: 'Recipe not found' });
+      }
+  
+      res.json(recipe); // Return the recipe if found
+    } catch (error) {
+      console.error('Error fetching recipe:', error);
+      res.status(500).json({ message: `Error searching for recipe: ${error.message}` });
     }
-
-    res.json(recipe); // Return the recipe if found
-  } catch (error) {
-    console.error('Error fetching recipe:', error);
-    res.status(500).json({ message: 'Error searching for recipe.' });
-  }
-});
+  });
 
 module.exports = router;
