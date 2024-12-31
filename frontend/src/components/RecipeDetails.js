@@ -7,6 +7,7 @@ const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null); // State to store recipe details
   const [error, setError] = useState(null); // State to store any error
   const [loading, setLoading] = useState(true); // State to manage loading
+  const [newReview, setNewReview] = useState({ reviewer: "", rating: 1, comment: "" });
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -24,6 +25,29 @@ const RecipeDetails = () => {
     fetchRecipe();
 }, [id]);
 
+// Handle new review submission
+const handleReviewSubmit = async (e) => {
+  e.preventDefault();
+  try {
+      const response = await axios.post(`http://localhost:1240/recipe/${id}/reviews`, newReview);
+      setRecipe((prevRecipe) => ({
+          ...prevRecipe,
+          review_list: [...prevRecipe.review_list, response.data],
+      }));
+      setNewReview({ reviewer: "", rating: 1, comment: "" }); // Reset the form
+  } catch (err) {
+      console.error('Error posting review:', err);
+      setError('Failed to post review. Please try again.');
+  }
+};
+// Handle input changes for the review form
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+  setNewReview((prevReview) => ({
+    ...prevReview,
+    [name]: value,
+  }));
+};
   // Conditional rendering
   if (loading) {
     return <p>Loading...</p>; // Show loading message while fetching data
@@ -37,8 +61,7 @@ const RecipeDetails = () => {
     return <p>Recipe not found.</p>; // Handle case where recipe is not found
   }
 
-  // Render recipe details if everything is fine
-  // Assuming recipe_procedure is an object with from, by, and instructions
+
 return (
   <div>
       <h1>{recipe.recipe_name}</h1>
@@ -56,8 +79,56 @@ return (
       <p><strong>From:</strong> {recipe.recipe_procedure.from}</p>
       <p><strong>By:</strong> {recipe.recipe_procedure.by}</p>
       <p><strong>Instructions:</strong> {recipe.recipe_procedure.instructions}</p>
-  </div>
-);
+      <h2>Post a Review</h2>
+      
+      <form onSubmit={handleReviewSubmit}>
+        <input
+          type="text"
+          name="reviewer"
+          placeholder="Your Name"
+          value={newReview.reviewer}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="number"
+          name="rating"
+          placeholder="Rating (1-5)"
+          value={newReview.rating}
+          onChange={handleInputChange}
+          min="1"
+          max="5"
+          required
+        />
+        <textarea
+          name="comment"
+          placeholder="Your Review"
+          value={newReview.comment}
+          onChange={handleInputChange}
+          required
+        />
+        <button type="submit">Submit Review</button>
+      </form>
+      <h2>Reviews</h2>
+      
+      <div>
+      
+      
+        {recipe.review_list.map((review, index) => (
+          <div key={index} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
+            <p>
+              <strong>{review.reviewer}</strong> (Rating: {review.rating}/5)
+            </p>
+            <p>{review.comment}</p>
+            
+          </div>
+          
+        ))}
+      </div>
+    </div>
+    
+  );
+  
 };
 
 export default RecipeDetails;

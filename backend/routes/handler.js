@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const schemas = require('../models/schemas')
 const Recipe = schemas.Recipe; 
+
 router.get('/tweets', (req, res) => {
     const str = [
         {
@@ -252,22 +253,15 @@ router.post('/recipe/:id/reviews', async (req, res) => {
         res.status(500).json({ message: 'Error posting review' });
     }
 });
-// In handler.js
-router.get('/RecipeDetails', async (req, res) => {
-    try {
-      const { q } = req.query; // Extract the search query
-      const glossaryTerms = await CookingGlossary.find({ term: { $regex: new RegExp(q, 'i') } }); // Adjust the field name as necessary
-  
-      if (!glossaryTerms.length) {
-        return res.status(404).json({ message: 'No glossary terms found' });
-      }
-  
-      res.json(glossaryTerms); // Return the glossary terms
-    } catch (error) {
-      console.error('Error fetching glossary terms:', error);
-      res.status(500).json({ message: 'Error fetching glossary terms' });
-    }
-  });
+router.get('/glossary', async (req, res) => {
+  try {
+    const glossaryTerms = await schemas.CookingGlossary.find(); // Fetch all glossary terms
+    res.json(glossaryTerms); // Send the glossary terms as a response
+  } catch (error) {
+    console.error('Error fetching glossary terms:', error);
+    res.status(500).json({ message})
+  }
+})
 
 
 //Search for a recipe by name
