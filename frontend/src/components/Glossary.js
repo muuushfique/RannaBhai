@@ -3,6 +3,7 @@ import axios from "axios";
 
 const Glossary = () => {
   const [glossaryTerms, setGlossaryTerms] = useState([]); // State to store glossary terms
+  const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
   const [loading, setLoading] = useState(true); // State to manage loading
   const [error, setError] = useState(null); // State to handle errors
 
@@ -24,7 +25,15 @@ const Glossary = () => {
 
     fetchGlossaryTerms();
   }, []);
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
+  // Filter glossary terms based on the search term
+  const filteredTerms = glossaryTerms.filter((term) =>
+    term.term.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   // Conditional rendering
   if (loading) {
     return <p>Loading glossary terms...</p>;
@@ -37,8 +46,23 @@ const Glossary = () => {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1>Cooking Glossary</h1>
+      {/* Search Box */}
+      <input
+        type="text"
+        placeholder="Search for a term..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginBottom: "20px",
+          fontSize: "16px",
+        }}
+      />
+
+      {/* Display Glossary Terms */}
       <ul style={{ listStyleType: "none", padding: 0 }}>
-        {glossaryTerms.map((term, index) => (
+        {filteredTerms.map((term, index) => (
           <li
             key={index}
             style={{
@@ -46,7 +70,10 @@ const Glossary = () => {
               borderRadius: "5px",
               padding: "10px",
               marginBottom: "10px",
-              backgroundColor: "#f9f9f9",
+              backgroundColor: term.term.toLowerCase().includes(searchTerm.toLowerCase())
+                ? "#f9f9f9" // Highlight color for matching terms
+                : "#f9f9f9", // Default background color
+              transition: "background-color 0.3s ease", // Smooth transition
             }}
           >
             <h3>{term.term}</h3>

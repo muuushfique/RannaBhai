@@ -27,7 +27,7 @@ const recipieSchema = new mongoose.Schema({
     required: true
   },
   ingredient_list: {
-    type: [String], // Array of strings for ingredients
+    type: [String], 
     required: true
   },
   cuisine: {

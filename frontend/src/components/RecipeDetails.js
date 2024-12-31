@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"; // Assuming you're using React Router
 import axios from "axios";
@@ -79,6 +80,12 @@ return (
       <p><strong>From:</strong> {recipe.recipe_procedure.from}</p>
       <p><strong>By:</strong> {recipe.recipe_procedure.by}</p>
       <p><strong>Instructions:</strong> {recipe.recipe_procedure.instructions}</p>
+      {/* Add the "Search Glossary" Link */}
+      <div style={{ margin: "20px 0" }}>
+      <Link to="/glossary" style={{ textDecoration: "none", color: "blue", fontWeight: "bold" }}>
+  Search Glossary
+    </Link>
+      </div>
       <h2>Post a Review</h2>
       
       <form onSubmit={handleReviewSubmit}>
