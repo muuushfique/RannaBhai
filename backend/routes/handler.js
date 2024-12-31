@@ -240,25 +240,34 @@ router.get('/recipe/:id', async (req, res) => {
 });
 router.post('/recipe/:id/reviews', async (req, res) => {
     try {
-        const recipe = await recipe.findById(req.params.id);
-        recipe.review_list.push(req.body);
-        await recipe.save();
-        res.json(req.body);
+        const recipe = await Recipe.findById(req.params.id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+        recipe.review_list.push(req.body); // Add the new review to the review_list
+        await recipe.save(); // Save the updated recipe
+        res.status(201).json(req.body); // Return the new review
     } catch (error) {
+        console.error('Error posting review:', error);
         res.status(500).json({ message: 'Error posting review' });
     }
 });
-router.get('/glossary/:word', async (req, res) => {
+// In handler.js
+router.get('/RecipeDetails', async (req, res) => {
     try {
-        const result = await Glossary.findOne({ word: req.params.word });
-        if (!result) {
-            return res.status(404).json({ message: 'Word not found' });
-        }
-        res.json(result);
+      const { q } = req.query; // Extract the search query
+      const glossaryTerms = await CookingGlossary.find({ term: { $regex: new RegExp(q, 'i') } }); // Adjust the field name as necessary
+  
+      if (!glossaryTerms.length) {
+        return res.status(404).json({ message: 'No glossary terms found' });
+      }
+  
+      res.json(glossaryTerms); // Return the glossary terms
     } catch (error) {
-        res.status(500).json({ message: 'Error searching glossary' });
+      console.error('Error fetching glossary terms:', error);
+      res.status(500).json({ message: 'Error fetching glossary terms' });
     }
-});
+  });
 
 
 //Search for a recipe by name

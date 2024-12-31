@@ -75,19 +75,35 @@ const HealthRecomSchema = new mongoose.Schema({
 
 
 
-const Users = mongoose.model('Users', userSchema, 'users')
+
+
+const glossarySchema = new Schema({
+    term: {
+      type: String,
+      required: true, // The term is required
+      unique: true, // Ensure that each term is unique
+    },
+    definition: {
+      type: String,
+      required: true, // The definition is required
+    },
+    // You can add more fields if necessary
+  }, { timestamps: true }); // Optional: adds createdAt and updatedAt timestamps
+  const Users = mongoose.model('Users', userSchema, 'users')
 const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
 
 
 const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
-
+  // Create a model from the schema
+  const CookingGlossary = mongoose.model('CookingGlossary', glossarySchema, 'cooking_glossary');
+  
 
 // Create a model for the "HealthRecom" collection
 const HealthRecom = mongoose.model('HealthRecom', HealthRecomSchema, "HealthRecom");
 
 //exporting Schemas
-const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe}
+const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary}
 
 module.exports = mySchemas
 
