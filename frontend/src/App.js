@@ -1,10 +1,12 @@
 import './App.css';
+import React from 'react';
 import Nav from './components/Nav';
 import Home from './components/Home';
 import Tweet from './components/Tweet';
 import GovtIssues from './components/GovtIssues';
 import Contact from './components/Contact'
-import Nearme from './components/nearme'
+import Ingredients from './components/Ingredients';
+import IngredientDetails from './components/IngredientDetails'; // For individual ingredient details
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -17,11 +19,13 @@ function App() {
           <Route path="/tweets" element={<Tweet />} />
           <Route path="/govt-issues" element={<GovtIssues />} />
           <Route path="contact-us" element={<Contact />} />
-          <Route path="near-me" element={<Nearme />} />
+          <Route path="/ingredients" element={<Ingredients />} />
+          <Route path="/ingredient/:id" element={<IngredientDetails />} />
         </Routes>
       </div>
     </Router>
   );
 }
+
 
 export default App;
