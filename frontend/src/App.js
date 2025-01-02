@@ -3,7 +3,7 @@ import React from 'react';
 import Nav from './components/Nav';
 import Home from './components/Home';
 import Tweet from './components/Tweet';
-import GovtIssues from './components/GovtIssues';
+import TrendingRecipe from './components/TrendingRecipe';
 import Contact from './components/Contact'
 import Nearme from './components/nearme'
 import Search from './components/Search' 
@@ -21,7 +21,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/RecipeDetails/:id" element={<RecipeDetails />} />
           <Route path="/tweets" element={<Tweet />} />
-          <Route path="/govt-issues" element={<GovtIssues />} />
+          <Route path="/trending-recipe" element={<TrendingRecipe />} />
           <Route path="contact-us" element={<Contact />} />
           <Route path="near-me" element={<Nearme />} />
           <Route path="Search" element={<Search />} />
