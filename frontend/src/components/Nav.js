@@ -23,8 +23,12 @@ function Nav() {
         <li className="nav-item">
           <Link to="/Search" className="nav-link">Search</Link>
         </li>
+        
         <li className="nav-item">
           <Link to="/HealthRecommendations" className="nav-link">HealthRecommendations</Link>
+        </li>
+        <li className="nav-item">
+        <Link to="/glossary" className="nav-link">Cooking Glossary</Link>
         </li>
         <li className="nav-item">
           <Link to="/reports" className="nav-link">Reports</Link>

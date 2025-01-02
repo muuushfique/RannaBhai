@@ -1,11 +1,11 @@
-// SearchBar.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const SearchBar = () => {
+const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [results, setResults] = useState([]);
+  const [error, setError] = useState(null); // State to handle errors
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -15,15 +15,18 @@ const SearchBar = () => {
     e.preventDefault();
 
     if (searchQuery.trim() === '') {
-      setResults([]);  // Clear results if query is empty
+      setError('Please enter a search term.');
       return;
     }
 
     try {
-      const response = await axios.get(`/search`, { params: { q: searchQuery } });
-      setResults(response.data);  // Set results to the response from backend
-    } catch (error) {
-      console.error('Error fetching search results:', error);
+      const response = await axios.get("http://localhost:1240/Search",{ params: { q: searchQuery } });
+      setError(null); // Clear any previous errors
+
+      // Redirect to the RecipeDetails page with the recipe ID
+      navigate(`../RecipeDetails/${response.data._id}`);
+    } catch (err) {
+      setError(err.response?.data.message || 'Error searching//// for recipe.///');
     }
   };
 
@@ -32,22 +35,16 @@ const SearchBar = () => {
       <form onSubmit={handleSearchSubmit}>
         <input 
           type="text"
-          placeholder="Search items"
+          placeholder="Search recipes by name"
           value={searchQuery}
           onChange={handleSearchChange}
-        />     
+        />
         <button type="submit">Search</button>
       </form>
 
-      <ul>
-        {results.map((item) => (
-          <li key={item._id}>{item.name}</li>  // Display item names
-        ))}
-      </ul>
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error if any */}
     </div>
   );
 };
 
-export default SearchBar;
-
-  
+export default Search;

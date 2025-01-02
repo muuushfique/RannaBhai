@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const schemas = require('../models/schemas')
+const Recipe = schemas.Recipe; 
 
 router.get('/tweets', (req, res) => {
     const str = [
@@ -119,23 +120,7 @@ router.put('/current-issues/:id', (req, res) => {
     }
 });
 
-// Ammarah
 
-// router.post('/recipe', async (req, res) => {
-//     const {recipe_name, cuisine_type, nutrient_list, calorie_count} = req.body
-//     const recipeData = {recipe_name:recipe_name, cuisine_type:cuisine_type, nutrient_list:nutrient_list, calorie_count:calorie_count}
-
-//     const newRecipe = new schemas.Recipes(recipeData)
-//     const saveRecipe = await newRecipe.save()
-//     if (saveRecipe) {
-//         res.send('Message sent. Thank you.')
-//     }
-//     else{
-//         res.send('Failed to send message')
-//     }
-//     res.end()
-// })
-//For Contact-us
 router.post('/contact', async (req, res) => {
     const {email, website, message} = req.body
     
@@ -242,35 +227,67 @@ router.get('/health', async (req, res) => {
     }
 });
 
-router.get('/recipes/:id', async (req, res) => {
+router.get('/recipe/:id', async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        res.json(recipe);
+        const recipe = await Recipe.findById(req.params.id); // Fetch the recipe by ID
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+        res.json(recipe); // Return the recipe if found
     } catch (error) {
+        console.error('Error fetching recipe:', error);
         res.status(500).json({ message: 'Error fetching recipe' });
     }
 });
-router.post('/recipes/:id/reviews', async (req, res) => {
+router.post('/recipe/:id/reviews', async (req, res) => {
     try {
         const recipe = await Recipe.findById(req.params.id);
-        recipe.review_list.push(req.body);
-        await recipe.save();
-        res.json(req.body);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+        recipe.review_list.push(req.body); // Add the new review to the review_list
+        await recipe.save(); // Save the updated recipe
+        res.status(201).json(req.body); // Return the new review
     } catch (error) {
+        console.error('Error posting review:', error);
         res.status(500).json({ message: 'Error posting review' });
     }
 });
-router.get('/glossary/:word', async (req, res) => {
-    try {
-        const result = await Glossary.findOne({ word: req.params.word });
-        if (!result) {
-            return res.status(404).json({ message: 'Word not found' });
-        }
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({ message: 'Error searching glossary' });
-    }
-});
+router.get('/glossary', async (req, res) => {
+  try {
+    const glossaryTerms = await schemas.CookingGlossary.find(); // Fetch all glossary terms
+    res.json(glossaryTerms); // Send the glossary terms as a response
+  } catch (error) {
+    console.error('Error fetching glossary terms:', error);
+    res.status(500).json({ message})
+  }
+})
 
+
+//Search for a recipe by name
+router.get('/search', async (req, res) => {
+    try {
+      const { q } = req.query; // Extract the search query
+  
+      // Validate the search query
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ message: 'Invalid search query' });
+      }
+  
+      console.log(`Searching for recipe: ${q}`); // Log the search query
+  
+      // Perform a case-insensitive search
+      const recipe = await Recipe.findOne({ recipe_name: { $regex: new RegExp(`^${q}$`, 'i') } });
+  
+      if (!recipe) {
+        return res.status(404).json({ message: 'Recipe not found' });
+      }
+  
+      res.json(recipe); // Return the recipe if found
+    } catch (error) {
+      console.error('Error fetching recipe:', error);
+      res.status(500).json({ message: `Error searching for recipe: ${error.message}` });
+    }
+  });
 
 module.exports = router;
