@@ -1,6 +1,8 @@
 const express = require('express');
+
 const router = express.Router();
 const schemas = require('../models/schemas')
+const controller = require('../controllers/controller')
 const Recipe = schemas.Recipe; 
 
 router.get('/tweets', (req, res) => {
@@ -290,4 +292,115 @@ router.get('/search', async (req, res) => {
     }
   });
 
+
+//Ipsit
+// Route to fetch nearby grocery stores
+router.get("/stores", async (req, res) => {
+  const { latitude, longitude, radius } = req.query;
+
+  const lat = parseFloat(latitude);
+  const lon = parseFloat(longitude);
+  const rad = parseFloat(radius);
+
+  if (!lat || !lon || !rad) {
+    return res.status(400).json({ error: "Invalid or missing query parameters." });
+  }
+
+  const stores = await schemas.GroceryStore.find();
+  
+  res.json(stores);
+});
+
+//recipe of the day
+// Function to get a random recipe
+const getRandomRecipe = async () => {
+  const recipeCount = await Recipe.countDocuments();
+  const randomIndex = Math.floor(Math.random() * recipeCount);
+  console.log(randomIndex)
+  const recipe = await Recipe.findOne().skip(randomIndex); // Randomly select a recipe
+  return recipe;
+};
+
+// Route to get the "Recipe of the Day"(Ipsit)
+router.get("/recipe-of-the-day", async (req, res) => {
+  try {
+    console.log("Somossa ache")
+    const today = new Date();
+    console.log(today)
+    var currentDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+    console.log(currentDate)
+  const seed = currentDate.getFullYear() * 10000 +
+    (currentDate.getMonth() + 1) * 100 +
+    currentDate.getDate();
+    const allRecipe = await Recipe.find({});
+    // console.log(allRecipe)
+  const recipeIndex = seed % allRecipe.length;
+  const recipe = allRecipe[recipeIndex];
+
+  console.log(recipe)
+  console.log("Ipsit")
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Recipe of the Day" });
+  }
+});  //end
+
+//faq and meal-planning
+router.post('/add-new-faq', controller.add_new_faq)
+router.get('/faqs', controller.get_all_faq);
+router.delete('/delete-faq/:id', controller.delete_faq);
+router.put('/update-faq/:id', controller.update_faq);
+router.post('/add-new-meal', controller.add_new_meal);
+router.get('/meals', controller.get_all_meals);
+router.delete('/delete-meal/:id', controller.delete_meal);
+router.put('/update-meal/:id', controller.update_meal);
+
+
+// Get About Us content
+router.get('/about-us', async (req, res) => {
+  try {
+    const aboutContent = await schemas.About.findOne();
+    res.status(200).json(aboutContent);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch About Us content.' });
+  }
+});
+
+
+// Submit a new recipe
+router.post('/submit-recipe', async (req, res) => {
+  try {
+    const {
+      recipe_name,
+      no_of_servings,
+      ingredient_list,
+      cuisine,
+      diet_type,
+      general_pricing,
+      recipe_procedure,
+      image_link,
+      calories,
+    } = req.body;
+
+    const newRecipe = new Recipe({
+      recipe_name,
+      no_of_servings,
+      ingredient_list: ingredient_list.split(',').map((item) => item.trim()),
+      cuisine,
+      diet_type,
+      general_pricing,
+      recipe_procedure,
+      image_link,
+      calories,
+      review_list: [], // Empty initially; will be updated by users later.
+    });
+
+    await newRecipe.save();
+    res.status(201).send('Recipe submitted successfully');
+  } catch (error) {
+    console.error('Error submitting recipe:', error);
+    res.status(500).send('Failed to submit recipe');
+  }
+});
+//End of Ipsit's code
 module.exports = router;

@@ -1,0 +1,61 @@
+.submit-recipe-container {
+    width: 40%; /* Reduced width for a medium-sized form */
+    margin: auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .submit-recipe-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adds space between form elements */
+  }
+  
+  .submit-recipe-form label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .submit-recipe-form input,
+  .submit-recipe-form textarea {
+    width: 100%;
+    padding: 8px; /* Reduced padding for a compact look */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px; /* Slightly smaller font size */
+  }
+  
+  .submit-recipe-form textarea {
+    resize: vertical; /* Allows vertical resizing only */
+  }
+  
+  .submit-recipe-form button {
+    width: 100%;
+    padding: 10px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submit-recipe-form button:hover {
+    background: #ff5252;
+  }
+  
+  /* Responsive Design for Smaller Screens */
+  @media (max-width: 768px) {
+    .submit-recipe-container {
+      width: 90%; /* Full width on smaller screens */
+    }
+  }
+  

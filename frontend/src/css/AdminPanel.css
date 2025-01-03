@@ -1,0 +1,309 @@
+.admin-faq-container {
+    padding: 1.5rem;
+    max-width: 1024px;
+    margin: 0 auto;
+}
+
+.admin-faq-panel {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.admin-faq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.admin-faq-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.admin-faq-add-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #3498db;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-faq-add-button:hover {
+    background-color: #2980b9;
+}
+
+.admin-faq-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.admin-faq-empty {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 2rem;
+}
+
+.admin-faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-faq-item {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-faq-content {
+    flex: 1;
+}
+
+.admin-faq-question {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.admin-faq-answer {
+    color: #7f8c8d;
+}
+
+.admin-faq-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-faq-edit-button, .admin-faq-delete-button {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-faq-edit-button {
+    background-color: #f39c12;
+    color: white;
+}
+
+.admin-faq-edit-button:hover {
+    background-color: #d35400;
+}
+
+.admin-faq-delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.admin-faq-delete-button:hover {
+    background-color: #c0392b;
+}
+
+.admin-faq-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.admin-faq-modal {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 32rem;
+    z-index: 1001;
+}
+
+.admin-faq-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-faq-modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.admin-faq-close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    cursor: pointer;
+}
+
+.admin-faq-close-button:hover {
+    color: #34495e;
+}
+
+.admin-faq-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-faq-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin-faq-form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.admin-faq-form-group input,
+.admin-faq-form-group textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-faq-form-group input:focus,
+.admin-faq-form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.admin-faq-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.admin-faq-cancel-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    background-color: white;
+    color: #2c3e50;
+    cursor: pointer;
+}
+
+.admin-faq-cancel-button:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-faq-submit-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+}
+
+.admin-faq-submit-button:hover {
+    background-color: #2980b9;
+}
+
+.admin-faq-submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .admin-faq-container {
+        padding: 1rem;
+    }
+
+    .admin-faq-panel {
+        padding: 1rem;
+    }
+
+    .admin-faq-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .admin-faq-add-button {
+        justify-content: center;
+    }
+
+    .admin-faq-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .admin-faq-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+.admin-panel-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-panel-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    color: #34495e;
+}
+
+.admin-panel-tab.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.admin-meal-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.admin-meal-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+}
+
+.admin-meal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-meal-category {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+    background-color: #f1f1f1;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+}

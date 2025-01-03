@@ -89,6 +89,49 @@ const glossarySchema = new Schema({
     },
     
   }, { timestamps: true }); 
+
+//Ipsit
+const GroceryStoreSchema = new Schema({
+  name: { type: String, require: true },
+  address: { type: String, require: true },
+  location: {
+    type: { type: String, enum: ['Point'], require: true },
+    coordinates: { type: [Number], require: true }
+  }
+})
+GroceryStoreSchema.index({ location: '2dsphere' }); // Enable geospatial queries
+
+const aboutSchema = new Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+}); 
+const FAQSchema = new Schema({
+  question: {type:String},
+  answer: {type:String},
+})
+const MealSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  calories: { type: Number, required: true },
+  image: { type: String, required: true },
+  category: { 
+    type: String, 
+    required: true,
+    enum: ['Breakfast', 'Lunch', 'Dinner']
+},
+});
+
+const RecipeSubmitSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  ingredients: { type: Array, required: true },
+  steps: { type: Array, required: true },
+  calories: { type: Number, required: true },
+  tags: { type: Array, default: [] },
+  imageLink: { type: String, requird: true },
+  
+});
+
   const Users = mongoose.model('Users', userSchema, 'users')
 const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
@@ -101,9 +144,14 @@ const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
 
 
 const HealthRecom = mongoose.model('HealthRecom', HealthRecomSchema, "HealthRecom");
+//Ipsit
+const GroceryStore = mongoose.model('GroceryStore', GroceryStoreSchema, 'stores' )
+const About = mongoose.model('About', aboutSchema, 'about_us');
+const FAQ = mongoose.model('FAQ', FAQSchema)
+const Meal = mongoose.model('Meal', MealSchema)
+const RecipeSubmit= mongoose.model('RecipeSubmit', RecipeSubmitSchema, 'RecipeSubmit')
 
-
-const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary}
+const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary, 'GroceryStore':GroceryStore, 'About':About, 'FAQ':FAQ, 'Meal':Meal, 'RecipeSubmit':RecipeSubmit}
 
 module.exports = mySchemas
 
