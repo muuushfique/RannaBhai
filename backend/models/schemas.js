@@ -1,13 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const userSchema = new Schema({
-    name: {type:String},
-    email: {type:String},
-    website: {type:String},
-    entryDate: {type:Date, default:Date.now}
-})
-
 const contactSchema = new Schema({
     email: {type:String,},
     website: {type:String,},
@@ -76,18 +69,10 @@ const recipieSchema = new mongoose.Schema({
   ], // New field for storing reports
 });
 
-
-
-
 // Define a schema for health recommendations
 const HealthRecomSchema = new mongoose.Schema({
   recommendation: { type: String, required: true },
 });
-
-
-
-
-
 const glossarySchema = new Schema({
     term: {
       type: String,
@@ -100,21 +85,21 @@ const glossarySchema = new Schema({
     },
     
   }, { timestamps: true }); 
-  const Users = mongoose.model('Users', userSchema, 'users')
-const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
-
-
-const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
-
-  const CookingGlossary = mongoose.model('CookingGlossary', glossarySchema, 'cooking_glossary');
+//for login/signup
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  isAdmin: { type: Boolean, default: false },
+});
   
-
-
+const User = mongoose.model('User', userSchema, 'user')
+const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
+const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
+const CookingGlossary = mongoose.model('CookingGlossary', glossarySchema, 'cooking_glossary');
 const HealthRecom = mongoose.model('HealthRecom', HealthRecomSchema, "HealthRecom");
-
-
-const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary}
+const mySchemas = {'User':User, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary}
 
 module.exports = mySchemas
 

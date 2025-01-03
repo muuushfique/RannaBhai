@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const schemas = require('../models/schemas')
 const Recipe = schemas.Recipe; 
+const User = schemas.User;
 
 //for contact us page
 router.post('/contact', async (req, res) => {
@@ -201,5 +202,179 @@ router.post('/api/recipe/report/:id', async (req, res) => {
   }
 });
 
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+// Signup route
+router.post("/api/signup", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    console.error("Error during signup:", error);
+    res.status(500).json({ message: "Error creating user" });
+  }
+});
+
+// Login route
+router.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, "your_secret_key", { expiresIn: "1h" });
+    res.json({ token });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ message: "Error logging in" });
+  }
+});
+
+// Middleware to verify token
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, "your_secret_key", (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+router.get("/api/user/dashboard", authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+  // Fetch user-specific data
+  const likedRecipes = await Recipe.find({ liked_by: userId });
+  const reportedIssues = await Recipe.aggregate([
+    { $unwind: "$reports" },
+    { $match: { "reports.user_id": userId } },
+  ]);
+
+  res.json({ likedRecipes, reportedIssues });
+});
+
+// Fetch liked recipes for a logged-in user
+router.get('/api/user/liked-recipes', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Extract user ID from JWT token
+
+    const likedRecipes = await Recipe.find({ liked_by: userId }); // Recipes liked by the user
+    res.status(200).json(likedRecipes);
+  } catch (error) {
+    console.error("Error fetching liked recipes:", error);
+    res.status(500).json({ message: "Failed to fetch liked recipes" });
+  }
+});
+
+// Fetch reported issues for a logged-in user
+router.get('/api/user/reported-issues', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Extract user ID from JWT token
+
+    const reportedIssues = await Recipe.aggregate([
+      { $unwind: "$reports" }, // Deconstruct the reports array
+      { $match: { "reports.user_id": userId } }, // Match reports by user ID
+      {
+        $project: {
+          recipe_name: 1,
+          "reports.message": 1,
+          "reports.date": 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(reportedIssues);
+  } catch (error) {
+    console.error("Error fetching reported issues:", error);
+    res.status(500).json({ message: "Failed to fetch reported issues" });
+  }
+});
+
+//Admin Panel
+// Fetch all recipes
+router.get('/api/admin/recipes', authenticateToken, async (req, res) => {
+  try {
+    const recipes = await Recipe.find({});
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    res.status(500).json({ message: "Error fetching recipes" });
+  }
+});
+
+// Fetch all reports
+router.get('/api/admin/reports', authenticateToken, async (req, res) => {
+  try {
+    const reports = await Recipe.aggregate([
+      { $unwind: "$reports" },
+      {
+        $project: {
+          recipe_name: 1,
+          "reports.message": 1,
+          "reports.date": 1,
+          "reports.user_id": 1,
+        },
+      },
+    ]);
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    res.status(500).json({ message: "Error fetching reports" });
+  }
+});
+
+// Delete a recipe by ID
+router.delete('/api/admin/recipe/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedRecipe = await Recipe.findByIdAndDelete(id);
+
+    if (!deletedRecipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    res.status(200).json({ message: "Recipe deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting recipe:", error);
+    res.status(500).json({ message: "Error deleting recipe" });
+  }
+});
+
+//for spoonacular
+router.get("/api/recipe-search", async (req, res) => {
+  const { ingredients } = req.query; // Ingredients passed in the query string
+  const apiKey = process.env.SPOONACULAR_API_KEY;
+
+  try {
+    const response = await axios.get(
+      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=10&apiKey=${apiKey}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching recipes:", error);
+    res.status(500).json({ message: "Failed to fetch recipes" });
+  }
+});
+
+module.exports = router;
 
 module.exports = router;
