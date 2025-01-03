@@ -12,10 +12,10 @@ function Nav() {
           <Link to="/" className="nav-link">Home Page</Link>
         </li>
         <li className="nav-item">
-          <Link to="/govt-issues" className="nav-link">Trending Recipes</Link>
+          <Link to="/trending-recipe" className="nav-link">Trending Recipes</Link>
         </li>
         <li className="nav-item">
-          <Link to="/tweets" className="nav-link">Tweets</Link>
+          <Link to="/report" className="nav-link">Report </Link>
         </li>
         <li className="nav-item">
           <Link to="/near-me" className="nav-link">Near Me</Link>
