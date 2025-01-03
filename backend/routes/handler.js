@@ -95,32 +95,44 @@ router.get('/glossary', async (req, res) => {
 })
 
 
-//Search for a recipe by name
-router.get('/search', async (req, res) => {
+// Search by recipe name
+router.get('/search-recipe-name', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ recipe_name: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+  
+  // Search by ingredient
+  router.get('/search-ingredient', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ ingredient_list: { $elemMatch: { $regex: new RegExp(`^${query}$`, 'i') } } });
+    res.json(recipes);
+  });
+  
+  // Search by cuisine
+  router.get('/search-cuisine', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ cuisine: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+  
+  // Search by diet type
+  router.get('/search-diet-type', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ diet_type: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+// Search by calories
+router.get('/search-calories', async (req, res) => {
+    const query = req.query.q;
     try {
-      const { q } = req.query; // Extract the search query
-  
-      // Validate the search query
-      if (!q || typeof q !== 'string') {
-        return res.status(400).json({ message: 'Invalid search query' });
-      }
-  
-      console.log(`Searching for recipe: ${q}`); // Log the search query
-  
-      // Perform a case-insensitive search
-      const recipe = await Recipe.findOne({ recipe_name: { $regex: new RegExp(`^${q}$`, 'i') } });
-  
-      if (!recipe) {
-        return res.status(404).json({ message: 'Recipe not found' });
-      }
-  
-      res.json(recipe); // Return the recipe if found
+      const recipes = await Recipe.find({ calories: query }); // Use exact match for calories
+      res.json(recipes);
     } catch (error) {
-      console.error('Error fetching recipe:', error);
-      res.status(500).json({ message: `Error searching for recipe: ${error.message}` });
+      console.error('Error searching by calories:', error);
+      res.status(500).json({ message: 'Error searching by calories' });
     }
   });
-
 //TrendingRecipe
 router.get('/api/trending-recipes', async (req, res) => {
   try {
