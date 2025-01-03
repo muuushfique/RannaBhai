@@ -18,6 +18,9 @@ const contactSchema = new Schema({
 
 
 const recipieSchema = new mongoose.Schema({
+  id: {
+    type: Number
+  },
   recipe_name: {
     type: String,
     required: true
@@ -62,7 +65,15 @@ const recipieSchema = new mongoose.Schema({
       rating: { type: Number, required: true, min: 1, max: 5 }, 
       comment: { type: String, required: true }
     }
-  ]
+  ],
+  like_count: {type: Number, default: 0},
+  dislike_count: {type: Number, default: 0},
+  reports: [
+    {
+      message: { type: String, required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ], // New field for storing reports
 });
 
 
