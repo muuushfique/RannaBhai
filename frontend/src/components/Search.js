@@ -1,48 +1,135 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useState } from "react";
+import axios from "axios";
 
+import { Link } from "react-router-dom";
 const Search = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [error, setError] = useState(null); // State to handle errors
-  const navigate = useNavigate(); // Initialize navigate
+  // Separate states for each search field
+  const [recipeNameQuery, setRecipeNameQuery] = useState("");
+  const [ingredientQuery, setIngredientQuery] = useState("");
+  const [cuisineQuery, setCuisineQuery] = useState("");
+  const [dietTypeQuery, setDietTypeQuery] = useState("");
+  const [caloriesQuery, setCaloriesQuery] = useState("");
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  const [error, setError] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
 
-  const handleSearchSubmit = async (e) => {
+  // Handle search submission for each field
+  const handleSearchSubmit = async (e, searchType, query) => {
     e.preventDefault();
-
-    if (searchQuery.trim() === '') {
-      setError('Please enter a search term.');
+  
+    if (query.trim() === "") {
+      setError("Please enter a search term.");
       return;
     }
-
+  
     try {
-      const response = await axios.get("http://localhost:1240/Search",{ params: { q: searchQuery } });
-      setError(null); // Clear any previous errors
-
-      // Redirect to the RecipeDetails page with the recipe ID
-      navigate(`../RecipeDetails/${response.data._id}`);
+      const response = await axios.get(`http://localhost:1240/${searchType}`, {
+        params: { q: query },
+      });
+      setError(null);
+      setSearchResults(response.data);
     } catch (err) {
-      setError(err.response?.data.message || 'Error searching//// for recipe.///');
+      setError(err.response?.data.message || "Error searching for recipe.");
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSearchSubmit}>
-        <input 
+      <h2>Search Recipes</h2>
+
+      {/* Search by Recipe Name */}
+      <form
+        onSubmit={(e) =>
+          handleSearchSubmit(e, "search-recipe-name", recipeNameQuery)
+        }
+      >
+        <input
           type="text"
-          placeholder="Search recipes by name"
-          value={searchQuery}
-          onChange={handleSearchChange}
+          placeholder="Search by recipe name"
+          value={recipeNameQuery}
+          onChange={(e) => setRecipeNameQuery(e.target.value)}
         />
         <button type="submit">Search</button>
       </form>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error if any */}
+      {/* Search by Ingredient */}
+      <form
+        onSubmit={(e) =>
+          handleSearchSubmit(e, "search-ingredient", ingredientQuery)
+        }
+      >
+        <input
+          type="text"
+          placeholder="Search by ingredient"
+          value={ingredientQuery}
+          onChange={(e) => setIngredientQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      {/* Search by Cuisine */}
+      <form
+        onSubmit={(e) => handleSearchSubmit(e, "search-cuisine", cuisineQuery)}
+      >
+        <input
+          type="text"
+          placeholder="Search by cuisine"
+          value={cuisineQuery}
+          onChange={(e) => setCuisineQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      {/* Search by Diet Type */}
+      <form
+        onSubmit={(e) =>
+          handleSearchSubmit(e, "search-diet-type", dietTypeQuery)
+        }
+      >
+        <input
+          type="text"
+          placeholder="Search by diet type"
+          value={dietTypeQuery}
+          onChange={(e) => setDietTypeQuery(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+
+<form
+  onSubmit={(e) =>
+    handleSearchSubmit(e, "search-calories", caloriesQuery)
+  }
+>
+  <input
+    type="text"
+    placeholder="Search by calories"
+    value={caloriesQuery}
+    onChange={(e) => setCaloriesQuery(e.target.value)}
+  />
+  <button type="submit">Search</button>
+</form>
+
+      {/* Error Message */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* Display Search Results */}
+      <div>
+        {Array.isArray(searchResults) && searchResults.length > 0 ? (
+          <ul>
+            {searchResults.map((recipe) => (
+              <li key={recipe._id}>
+                {/* Make the recipe name a link to RecipeDetails.js */}
+                <Link to={`/RecipeDetails/${recipe._id}`}>
+                  {recipe.recipe_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No results found.</p>
+        )}
+      </div>
     </div>
   );
 };
