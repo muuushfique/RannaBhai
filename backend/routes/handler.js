@@ -161,5 +161,45 @@ router.put('/api/recipe/vote/:id', async (req, res) => {
   }
 });
 
+// Fetch all recipes
+router.get('/api/all-recipes', async (req, res) => {
+  try {
+    const recipes = await Recipe.find({});
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.error("Error fetching all recipes:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Submit a report for a recipe
+router.post('/api/recipe/report/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // Recipe ID from the URL
+    const { reportMessage } = req.body; // Report message from the frontend
+
+    if (!reportMessage) {
+      return res.status(400).json({ message: "Report message is required." });
+    }
+
+    const intId = parseInt(id, 10); // Convert ID to an integer
+
+    const updatedRecipe = await schemas.Recipe.findOneAndUpdate(
+      { id: intId },
+      { $push: { reports: { message: reportMessage, date: new Date() } } }, // Add the report
+      { new: true }
+    );
+
+    if (!updatedRecipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    res.json({ message: "Report submitted successfully." });
+  } catch (error) {
+    console.error("Error submitting report:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 
 module.exports = router;

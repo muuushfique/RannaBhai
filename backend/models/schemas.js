@@ -67,7 +67,13 @@ const recipieSchema = new mongoose.Schema({
     }
   ],
   like_count: {type: Number, default: 0},
-  dislike_count: {type: Number, default: 0}
+  dislike_count: {type: Number, default: 0},
+  reports: [
+    {
+      message: { type: String, required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ], // New field for storing reports
 });
 
 
