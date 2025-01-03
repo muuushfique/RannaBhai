@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import "./RecipeDetails.css";
 import { Link } from "react-router-dom";
 const Search = () => {
   // Separate states for each search field
@@ -34,8 +34,9 @@ const Search = () => {
   };
 
   return (
-    <div>
-      <h2>Search Recipes</h2>
+    <div className="faq-container">
+      <h1 className="faq-title">Search Recipes</h1>
+      <div className="faq-list">
 
       {/* Search by Recipe Name */}
       <form
@@ -109,27 +110,22 @@ const Search = () => {
   />
   <button type="submit">Search</button>
 </form>
-
+</div>
       {/* Error Message */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* Display Search Results */}
-      <div>
-        {Array.isArray(searchResults) && searchResults.length > 0 ? (
-          <ul>
-            {searchResults.map((recipe) => (
-              <li key={recipe._id}>
-                {/* Make the recipe name a link to RecipeDetails.js */}
-                <Link to={`/RecipeDetails/${recipe._id}`}>
-                  {recipe.recipe_name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No results found.</p>
-        )}
-      </div>
+      {error && <p className="error">{error}</p>}
+      {searchResults.length === 0 ? (
+        <p className="loading">No results found.</p>
+      ) : (
+        <ul>
+          {searchResults.map((recipe) => (
+            <li key={recipe._id}>
+              <Link to={`/RecipeDetails/${recipe._id}`} className="faq-question">
+                {recipe.recipe_name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
