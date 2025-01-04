@@ -174,6 +174,14 @@ function Home() {
           >
             View Ingredients
           </button>
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: '10px', marginRight: '10px' }}
+            onClick={() => navigate('/Search')}
+          >
+  Search Recipes
+</button>
+
         </div>
         <select
           className="form-control"

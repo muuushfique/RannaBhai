@@ -104,6 +104,62 @@ router.delete('/recipes/:id', async (req, res) => {
     }
 });
 
+//ammarah
+router.post('/recipe/:id/reviews', async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+        recipe.review_list.push(req.body); // Add the new review to the review_list
+        await recipe.save(); // Save the updated recipe
+        res.status(201).json(req.body); // Return the new review
+    } catch (error) {
+        console.error('Error posting review:', error);
+        res.status(500).json({ message: 'Error posting review' });
+    }
+});
+
+// Search by recipe name
+router.get('/search-recipe-name', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ recipe_name: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+  
+  // Search by ingredient
+  router.get('/search-ingredient', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ ingredient_list: { $elemMatch: { $regex: new RegExp(`^${query}$`, 'i') } } });
+    res.json(recipes);
+  });
+  
+  // Search by cuisine
+  router.get('/search-cuisine', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ cuisine: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+  
+  // Search by diet type
+  router.get('/search-diet-type', async (req, res) => {
+    const query = req.query.q;
+    const recipes = await Recipe.find({ diet_type: { $regex: new RegExp(`^${query}$`, 'i') } });
+    res.json(recipes);
+  });
+// Search by calories
+router.get('/search-calories', async (req, res) => {
+    const query = req.query.q;
+    try {
+      const recipes = await Recipe.find({ calories: query }); // Use exact match for calories
+      res.json(recipes);
+    } catch (error) {
+      console.error('Error searching by calories:', error);
+      res.status(500).json({ message: 'Error searching by calories' });
+    }
+  });
+  //ammarah
+
 router.post('/recipes/:id/like', async (req, res) => {
     
     const recipeId = req.params.id;

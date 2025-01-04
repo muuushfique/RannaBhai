@@ -7,6 +7,7 @@ import GovtIssues from './components/GovtIssues';
 import Contact from './components/Contact'
 import Ingredients from './components/Ingredients';
 import IngredientDetails from './components/IngredientDetails'; // For individual ingredient details
+import Search from './components/Search' 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="contact-us" element={<Contact />} />
           <Route path="/ingredients" element={<Ingredients />} />
           <Route path="/ingredient/:id" element={<IngredientDetails />} />
+          <Route path="Search" element={<Search />} />
         </Routes>
       </div>
     </Router>
