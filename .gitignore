@@ -1,5 +1,5 @@
 # Ignore node_modules cache
-# Dependency directories
+
 node_modules/
 
 # Dependency lock files
