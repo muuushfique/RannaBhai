@@ -31,8 +31,7 @@ function Nav() {
           <Link to ="/recipe-of-the-day" className="nav-link">Recipe of the Day</Link>
         </li>
         <li className="nav-item">
-<<<<<<< HEAD
-          <Link to="/Search" className="nav-link">Search</Link>
+          <Link to="/Search" className="nav-link">Search For Recipe</Link>
         </li>
         <li className='nav-item'>
           <Link to="/bmi" className="nav-link">BMI</Link>
@@ -44,19 +43,10 @@ function Nav() {
           <Link to="/faq" className="nav-link">FAQs</Link>
         </li>
         <li className="nav-item">
-          <Link to="/HealthRecommendations" className="nav-link">HealthRecommendations</Link>
-=======
-          <Link to="/search" className="nav-link">Search</Link>
->>>>>>> game/main
-        </li>
-        <li className="nav-item">
           <Link to="/HealthRecommendations" className="nav-link">Health Recommendations</Link>
         </li>
         <li className="nav-item">
           <Link to="/glossary" className="nav-link">Cooking Glossary</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/reports" className="nav-link">Reports</Link>
         </li>
         <li className="nav-item">
           <Link to="/spoonacular-landing" className="nav-link">Try Spoonacular</Link>

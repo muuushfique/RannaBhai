@@ -169,7 +169,7 @@ router.post('/recipes/:id/like', async (req, res) => {
   });
 const schemas = require('../models/schemas')
 const controller = require('../controllers/controller')
-const Recipe = schemas.Recipe; 
+
 const User = schemas.User;
 
 //for contact us page
@@ -217,7 +217,7 @@ router.post('/recipes/:id/dislike', async (req, res) => {
     res.status(200).send('Dislike updated');
   });
 
-router.get('/health', async (req, res) => {
+  router.get('/health', async (req, res) => {
     try {
         // Fetch all recommendations from the HealthRecom collection
         const recommendations = await schemas.Recommendations.find();
@@ -560,8 +560,6 @@ router.get("/api/recipe-search", async (req, res) => {
   }
 });
 
-module.exports = router;
-
 
 //Ipsit
 // Route to fetch nearby grocery stores
@@ -673,7 +671,7 @@ router.post('/submit-recipe', async (req, res) => {
   }
 });
 //End of Ipsit's code
-module.exports = router;
+
 router.get('/Ingredients', async (req, res) => {
     try {
         console.log('hit')
@@ -811,13 +809,5 @@ router.get('/Ingredients/:id/recipes', async (req, res) => {
         res.status(500).json({ message: 'Error fetching recipes for ingredient' });
     }
 });
-
-
-
-
-  
-
-
-  
 
 module.exports = router;
