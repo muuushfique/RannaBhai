@@ -7,6 +7,7 @@
     "cra-template": "1.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.469.0",
+    "jspdf": "^2.5.2",
     "mongoose": "^8.9.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

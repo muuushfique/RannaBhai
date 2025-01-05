@@ -5,6 +5,9 @@ import Home from './components/Home';
 import ReportRecipe from './components/ReportRecipe';
 import TrendingRecipe from './components/TrendingRecipe';
 import Contact from './components/Contact'
+import Ingredients from './components/Ingredients';
+import IngredientDetails from './components/IngredientDetails'; // For individual ingredient details
+import Search from './components/Search' 
 import Nearme from './components/nearme'
 import Search from './components/Search' 
 import HealthRecommendations from './components/HealthRecommendations';
@@ -39,11 +42,13 @@ function App() {
           <Route path="/report" element={<ReportRecipe />} />
           <Route path="/trending-recipe" element={<TrendingRecipe />} />
           <Route path="contact-us" element={<Contact />} />
+          <Route path="/ingredients" element={<Ingredients />} />
+          <Route path="/ingredient/:id" element={<IngredientDetails />} />
+          <Route path="Search" element={<Search />} />
           <Route path="near-me" element={<Nearme />} />
           <Route path="Search" element={<Search />} />
           <Route path="/glossary" element={<Glossary />} />
           <Route path="HealthRecommendations" element={<HealthRecommendations />} />
-<<<<<<< HEAD
           <Route path="recipe-of-the-day" element={<RecipeOfTheDay />} />
           <Route path="BMI" element={<BMI />} />
           <Route path="about-us" element={<AboutUs />} />
@@ -51,8 +56,6 @@ function App() {
           <Route path="faq" element={<FAQ />} />
           <Route path="meal-planning" element={<MealPlanner />} />
           <Route path="recipe-submit" element={<RecipeSubmit />} />
-          
-=======
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="dashboard" element={<UserDashboard />} />
@@ -61,7 +64,6 @@ function App() {
           <Route path="/spoonacular" element={<Spoon />} />
           <Route path="/spoon-details/:id" element={<SpoonDetails />} />
           <Route path="/random-recipe" element={<RandomRecipe />} />
->>>>>>> game/main
         </Routes>
       </div>
     </Router>

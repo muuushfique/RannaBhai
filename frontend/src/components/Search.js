@@ -1,6 +1,13 @@
+<<<<<<< HEAD
+//temp
+import React, { useState } from "react";
+import axios from "axios";
+import "./RecipeDetails.css";
+=======
 import React, { useState } from "react";
 import axios from "axios";
 
+>>>>>>> game/main
 import { Link } from "react-router-dom";
 const Search = () => {
   // Separate states for each search field
@@ -34,8 +41,14 @@ const Search = () => {
   };
 
   return (
+<<<<<<< HEAD
+    <div className="faq-container">
+      <h1 className="faq-title">Search Recipes</h1>
+      <div className="faq-list">
+=======
     <div>
       <h2>Search Recipes</h2>
+>>>>>>> game/main
 
       {/* Search by Recipe Name */}
       <form
@@ -109,6 +122,24 @@ const Search = () => {
   />
   <button type="submit">Search</button>
 </form>
+<<<<<<< HEAD
+</div>
+      {/* Error Message */}
+      {error && <p className="error">{error}</p>}
+      {searchResults.length === 0 ? (
+        <p className="loading">No results found.</p>
+      ) : (
+        <ul>
+          {searchResults.map((recipe) => (
+            <li key={recipe._id}>
+              <Link to={`/RecipeDetails/${recipe._id}`} className="faq-question">
+                {recipe.recipe_name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+=======
 
       {/* Error Message */}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -130,6 +161,7 @@ const Search = () => {
           <p>No results found.</p>
         )}
       </div>
+>>>>>>> game/main
     </div>
   );
 };

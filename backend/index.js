@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 const corsOptions = {
-    oritign: '*',
+    origin: '*',
     credentials: true,
     optionSuccessStatus: 200
 }
@@ -29,6 +29,7 @@ const dbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   };
+  
 mongoose.connect(process.env.DB_URI, dbOptions)
 .then(() => console.log('DB Connected!'))
 .catch(err => {
