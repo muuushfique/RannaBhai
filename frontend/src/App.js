@@ -2,13 +2,29 @@ import './App.css';
 import React from 'react';
 import Nav from './components/Nav';
 import Home from './components/Home';
-import Tweet from './components/Tweet';
-import GovtIssues from './components/GovtIssues';
+import ReportRecipe from './components/ReportRecipe';
+import TrendingRecipe from './components/TrendingRecipe';
 import Contact from './components/Contact'
+<<<<<<< HEAD
 import Ingredients from './components/Ingredients';
 import IngredientDetails from './components/IngredientDetails'; // For individual ingredient details
 import Search from './components/Search' 
+=======
+import Nearme from './components/nearme'
+import Search from './components/Search' 
+import HealthRecommendations from './components/HealthRecommendations';
+import RecipeDetails from './components/RecipeDetails';
+import Glossary from './components/Glossary';
+>>>>>>> game/main
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './components/Login/login';
+import Signup from './components/Login/signup';
+import UserDashboard from './components/Login/dashboard';
+import AdminPanel from './components/Login/AdminPanel';
+import Spoon from './components/Spoonacular/Spoonacular';
+import SpoonDetails from './components/Spoonacular/SpoonDetails';
+import RandomRecipe from './components/Spoonacular/RandomRecipe';
+import SpoonacularLanding from './components/Spoonacular/Landing';
 
 function App() {
   return (
@@ -17,12 +33,28 @@ function App() {
         <Nav />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/tweets" element={<Tweet />} />
-          <Route path="/govt-issues" element={<GovtIssues />} />
+          <Route path="/RecipeDetails/:id" element={<RecipeDetails />} />
+          <Route path="/report" element={<ReportRecipe />} />
+          <Route path="/trending-recipe" element={<TrendingRecipe />} />
           <Route path="contact-us" element={<Contact />} />
+<<<<<<< HEAD
           <Route path="/ingredients" element={<Ingredients />} />
           <Route path="/ingredient/:id" element={<IngredientDetails />} />
           <Route path="Search" element={<Search />} />
+=======
+          <Route path="near-me" element={<Nearme />} />
+          <Route path="Search" element={<Search />} />
+          <Route path="/glossary" element={<Glossary />} />
+          <Route path="HealthRecommendations" element={<HealthRecommendations />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="dashboard" element={<UserDashboard />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/spoonacular-landing" element={<SpoonacularLanding />} />
+          <Route path="/spoonacular" element={<Spoon />} />
+          <Route path="/spoon-details/:id" element={<SpoonDetails />} />
+          <Route path="/random-recipe" element={<RandomRecipe />} />
+>>>>>>> game/main
         </Routes>
       </div>
     </Router>
@@ -30,4 +62,8 @@ function App() {
 }
 
 
+<<<<<<< HEAD
 export default App;
+=======
+export default App;
+>>>>>>> game/main

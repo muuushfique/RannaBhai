@@ -1,0 +1,45 @@
+.spoonacular-landing {
+  display: flex; /* Use flexbox for centering */
+  flex-direction: column; /* Arrange items vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #ff7e5f, #feb47b); /* Attractive gradient */
+  color: white;
+  text-align: center;
+  margin: 0; /* Remove any default margin */
+}
+
+.spoonacular-landing h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.spoonacular-landing p {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.button-group {
+  display: flex;
+  gap: 20px; /* Space between buttons */
+}
+
+.option-button {
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #ff7e5f;
+  font-weight: bold;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+.option-button:hover {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+  background-color: #ffdfd4;
+}

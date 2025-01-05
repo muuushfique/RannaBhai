@@ -14,3 +14,4 @@ yarn-error.log*
 # System files
 .DS_Store
 Thumbs.db
+frontend/node_modules/.cache/
