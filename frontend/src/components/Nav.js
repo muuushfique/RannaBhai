@@ -15,35 +15,37 @@ function Nav() {
           <Link to="/trending-recipe" className="nav-link">Trending Recipes</Link>
         </li>
         <li className="nav-item">
-          <Link to="/report" className="nav-link">Report </Link>
+          <Link to="/report" className="nav-link">Report</Link>
         </li>
         <li className="nav-item">
           <Link to="/near-me" className="nav-link">Near Me</Link>
         </li>
         <li className="nav-item">
-          <Link to="/Search" className="nav-link">Search</Link>
-        </li>
-        
-        <li className="nav-item">
-          <Link to="/HealthRecommendations" className="nav-link">HealthRecommendations</Link>
+          <Link to="/search" className="nav-link">Search</Link>
         </li>
         <li className="nav-item">
-        <Link to="/glossary" className="nav-link">Cooking Glossary</Link>
+          <Link to="/HealthRecommendations" className="nav-link">Health Recommendations</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/glossary" className="nav-link">Cooking Glossary</Link>
         </li>
         <li className="nav-item">
           <Link to="/reports" className="nav-link">Reports</Link>
         </li>
         <li className="nav-item">
-          <Link to="/community-service" className="nav-link">Community Service</Link>
+          <Link to="/spoonacular-landing" className="nav-link">Try Spoonacular</Link>
         </li>
         <li className="nav-item">
           <Link to="/contact-us" className="nav-link">Contact Us</Link>
         </li>
+
       </ul>
       <div className="bottom-options">
         <button className="btn btn-dark w-100">Dark Mode</button>
-        <button className="btn btn-secondary w-100">Profile</button>
-        <button className="btn btn-danger w-100">Log Out</button>
+        {/* <button className="btn btn-secondary w-100">Profile</button> */}
+        <Link to="/login">
+          <button className="btn btn-danger w-100">Log In</button>
+        </Link>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./../Customcss/ReportRecipe.css";
 
 function AllRecipes() {
   const [recipes, setRecipes] = useState([]);
@@ -66,7 +67,7 @@ function AllRecipes() {
               </p>
               <div className="report-section">
                 <button
-                  className="btn btn-report"
+                  className="btn-report"
                   onClick={() =>
                     reporting === recipe.id
                       ? setReporting(null)
@@ -84,7 +85,7 @@ function AllRecipes() {
                       rows="3"
                     />
                     <button
-                      className="btn btn-submit-report"
+                      className="btn-submit-report"
                       onClick={() => handleReport(recipe.id)}
                     >
                       Submit
