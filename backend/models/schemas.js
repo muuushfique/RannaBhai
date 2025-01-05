@@ -50,11 +50,6 @@ const ingredientSchema = new Schema({
     },
     category: { type: String, required: true }, // 'veg' or 'non-veg'
  });
- 
-
-const Ingredient = mongoose.model('Ingredient', ingredientSchema, 'Ingredients');
-
-
 
 const recipieSchema = new mongoose.Schema({
   id: {
@@ -125,9 +120,9 @@ const HealthRecomSchema = new mongoose.Schema({
   health_practice: {
     type: String,
     required: true, // Health practice is required
-  }, 
-  recommendation: { type: String, required: true },
-},{ timestamps: true });
+  }
+}, { timestamps: true });
+
 const glossarySchema = new Schema({
     term: {
       type: String,
@@ -203,8 +198,9 @@ const About = mongoose.model('About', aboutSchema, 'about_us');
 const FAQ = mongoose.model('FAQ', FAQSchema)
 const Meal = mongoose.model('Meal', MealSchema)
 const RecipeSubmit= mongoose.model('RecipeSubmit', RecipeSubmitSchema, 'RecipeSubmit')
+const Ingredient = mongoose.model('Ingredient', ingredientSchema, 'Ingredients');
 
-const mySchemas = {'User':User, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary, 'GroceryStore':GroceryStore, 'About':About, 'FAQ':FAQ, 'Meal':Meal, 'RecipeSubmit':RecipeSubmit}
+const mySchemas = {'User':User, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary, 'GroceryStore':GroceryStore, 'About':About, 'FAQ':FAQ, 'Meal':Meal, 'RecipeSubmit':RecipeSubmit, 'Ingredient': Ingredient}
 
 
 module.exports = mySchemas

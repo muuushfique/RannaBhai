@@ -23,7 +23,7 @@ const AboutUs = () => {
   return (
     <div
       style={{
-        backgroundImage: `url(${aboutContent.imageUrl})`,
+        backgroundImage: `url(https://images.pexels.com/photos/4084641/pexels-photo-4084641.jpeg?auto=compress&cs=tinysrgb&w=600)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         color: "#fff",

@@ -1,0 +1,98 @@
+.hm-navbar {
+    padding: 10px 20px;
+  }
+  
+  .hm-logo {
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .hm-nav-link {
+    color: #f8f9fa !important;
+    font-weight: 500;
+    margin-right: 10px;
+    text-decoration: none;
+  }
+  
+  .hm-nav-link:hover {
+    color: #ffd700 !important;
+  }
+  
+  .hm-btn {
+    display: inline-block;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .hm-btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+  
+  .hm-btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  .hm-btn-outline-primary {
+    color: #007bff;
+    border: 1px solid #007bff;
+    background-color: transparent;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+  
+  .hm-btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .hm-hero-section {
+    background: url('./../components/Welcome.jpg')
+      no-repeat center center/cover;
+    color: #350707;
+    border:#ddd;
+    padding: 100px 20px;
+    text-align: center;
+  }
+  
+  .hm-hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .hm-btn-lg {
+    font-size: 1.5rem;
+    padding: 15px 30px;
+  }
+  
+  .hm-feature-image {
+    width: 100%;
+    border-radius: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .hm-testimonials-section {
+    padding: 50px 15px;
+  }
+  
+  .hm-user-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
+  
+  .hm-footer {
+    background-color: #222;
+    color: #ddd;
+    padding: 20px 0;
+    margin-top: 50px;
+  }
+  
+  .hm-footer p {
+    margin: 0;
+  }
+  
