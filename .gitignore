@@ -1,4 +1,20 @@
 # Ignore node_modules cache
+# Dependency directories
+node_modules/
+
+# Dependency lock files
+package-lock.json
+yarn.lock
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
 frontend/node_modules/.cache/
 
 # Ignore package-lock.json

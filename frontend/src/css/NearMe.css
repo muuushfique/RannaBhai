@@ -1,0 +1,51 @@
+.map-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  
+  .map-title {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .map {
+    height: 500px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .store-list {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .store-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .store-item:last-child {
+    border-bottom: none;
+  }
+  
+  .store-item h3 {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+  }
+  
+  .distance {
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 1.2em;
+  }

@@ -596,3 +596,9 @@ h1 {
   color: red;
   margin-top: 10px;
 }
+.logo-img {
+  width: 100px; /* Adjust as needed */
+  height: auto;
+  display: block;
+  margin: 0 auto; /* Center the logo */
+}

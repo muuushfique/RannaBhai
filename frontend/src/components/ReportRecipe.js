@@ -44,55 +44,53 @@ function AllRecipes() {
   };
 
   return (
-    <div className="all-recipes">
-      <h1 className="title">All Recipes</h1>
+    <div className="rr-all-recipes">
+      <h1 className="rr-title">All Recipes</h1>
       {submissionMessage && (
-        <div className="submission-message">{submissionMessage}</div>
+        <div className="rr-submission-message">{submissionMessage}</div>
       )}
-      <div className="recipe-list">
+      <div className="rr-recipe-list">
         {recipes.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
+          <div key={recipe.id} className="rr-recipe-card">
             <img
               src={recipe.image_link}
               alt={recipe.recipe_name}
-              className="recipe-image"
+              className="rr-recipe-image"
             />
-            <div className="recipe-content">
-              <h3 className="recipe-name">{recipe.recipe_name}</h3>
-              <p className="recipe-info">
+            <div className="rr-recipe-content">
+              <h3 className="rr-recipe-name">{recipe.recipe_name}</h3>
+              <p className="rr-recipe-info">
                 <strong>Cuisine:</strong> {recipe.cuisine}
               </p>
-              <p className="recipe-info">
+              <p className="rr-recipe-info">
                 <strong>Diet:</strong> {recipe.diet_type}
               </p>
-              <div className="report-section">
-                <button
-                  className="btn-report"
-                  onClick={() =>
-                    reporting === recipe.id
-                      ? setReporting(null)
-                      : setReporting(recipe.id)
-                  }
-                >
-                  Report
-                </button>
-                {reporting === recipe.id && (
-                  <div className="report-dropdown">
-                    <textarea
-                      value={reportMessage}
-                      onChange={(e) => setReportMessage(e.target.value)}
-                      placeholder="Explain your issue here..."
-                      rows="3"
-                    />
-                    <button
-                      className="btn-submit-report"
-                      onClick={() => handleReport(recipe.id)}
-                    >
-                      Submit
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                className="rr-btn-report"
+                onClick={() =>
+                  reporting === recipe.id
+                    ? setReporting(null)
+                    : setReporting(recipe.id)
+                }
+              >
+                Report
+              </button>
+              {reporting === recipe.id && (
+                <div className="rr-report-dropdown">
+                  <textarea
+                    value={reportMessage}
+                    onChange={(e) => setReportMessage(e.target.value)}
+                    placeholder="Explain your issue here..."
+                    rows="3"
+                  />
+                  <button
+                    className="rr-btn-submit-report"
+                    onClick={() => handleReport(recipe.id)}
+                  >
+                    Submit
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}

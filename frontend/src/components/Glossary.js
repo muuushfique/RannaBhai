@@ -34,55 +34,63 @@ const Glossary = () => {
   const filteredTerms = glossaryTerms.filter((term) =>
     term.term.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // Conditional rendering
-  if (loading) {
-    return <p>Loading glossary terms...</p>;
+    // Conditional rendering
+    if (loading) {
+      return (
+        <div className="faq-container">
+          <h1 className="faq-title">Cooking Glossary</h1>
+          <div className="faq-list">
+            <p className="loading">Loading glossary terms...</p>
+          </div>
+        </div>
+      );
+    }
+  
+    if (error) {
+      return (
+        <div className="faq-container">
+          <h1 className="faq-title">Cooking Glossary</h1>
+          <div className="faq-list">
+            <p className="error">{error}</p>
+          </div>
+        </div>
+      );
+    }
+  
+    return (
+      <div className="faq-container">
+        <h1 className="faq-title">Cooking Glossary</h1>
+        <input
+          type="text"
+          placeholder="Search for a term..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "20px",
+            fontSize: "16px",
+          }}
+        />
+        <div className="faq-list">
+          {filteredTerms.length === 0 ? (
+            <p className="loading">No glossary terms available at the moment.</p>
+          ) : (
+            filteredTerms.map((term, index) => (
+              <div key={index} className="translucent-box" style={{
+                backgroundColor: "rgba(255, 255, 255, 0.7)",
+                padding: "20px",
+                borderRadius: "10px",
+                boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+              }}>
+                <div className="faq-question">{term.term}</div>
+                <div className="faq-answer">{term.definition}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
   }
-
-  if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
-
-  return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Cooking Glossary</h1>
-      {/* Search Box */}
-      <input
-        type="text"
-        placeholder="Search for a term..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "20px",
-          fontSize: "16px",
-        }}
-      />
-
-      {/* Display Glossary Terms */}
-      <ul style={{ listStyleType: "none", padding: 0 }}>
-        {filteredTerms.map((term, index) => (
-          <li
-            key={index}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              padding: "10px",
-              marginBottom: "10px",
-              backgroundColor: term.term.toLowerCase().includes(searchTerm.toLowerCase())
-                ? "#f9f9f9" // Highlight color for matching terms
-                : "#f9f9f9", // Default background color
-              transition: "background-color 0.3s ease", // Smooth transition
-            }}
-          >
-            <h3>{term.term}</h3>
-            <p>{term.definition}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
+  
 export default Glossary;

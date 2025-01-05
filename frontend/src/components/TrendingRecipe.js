@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./../Customcss/TrendingRecipe.css";
 
 function TrendingRecipe() {
   const [recipes, setRecipes] = useState([]);
@@ -60,33 +61,33 @@ function TrendingRecipe() {
   };
 
   return (
-    <div className="trending-recipes">
-      <h1 className="title">Trending Recipes</h1>
-      <div className="recipe-list">
+    <div className="tr-trending-recipes">
+      <h1 className="tr-title">Trending Recipes</h1>
+      <div className="tr-recipe-list">
         {recipes.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
+          <div key={recipe.id} className="tr-recipe-card">
             <img
               src={recipe.image_link}
               alt={recipe.recipe_name}
-              className="recipe-image"
+              className="tr-recipe-image"
             />
-            <div className="recipe-content">
-              <h3 className="recipe-name">{recipe.recipe_name}</h3>
-              <p className="recipe-info">
+            <div className="tr-recipe-content">
+              <h3 className="tr-recipe-name">{recipe.recipe_name}</h3>
+              <p className="tr-recipe-info">
                 <strong>Cuisine:</strong> {recipe.cuisine}
               </p>
-              <p className="recipe-info">
+              <p className="tr-recipe-info">
                 <strong>Diet:</strong> {recipe.diet_type}
               </p>
-              <div className="recipe-actions">
+              <div className="tr-recipe-actions">
                 <button
-                  className="btn btn-like"
+                  className="tr-btn tr-btn-like"
                   onClick={() => handleVote(recipe.id, "like")}
                 >
                   Like {recipe.like_count}
                 </button>
                 <button
-                  className="btn btn-dislike"
+                  className="tr-btn tr-btn-dislike"
                   onClick={() => handleVote(recipe.id, "dislike")}
                 >
                   Dislike {recipe.dislike_count}
