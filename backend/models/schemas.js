@@ -117,8 +117,17 @@ const recipieSchema = new mongoose.Schema({
 
 // Define a schema for health recommendations
 const HealthRecomSchema = new mongoose.Schema({
+  disease: {
+    type: String,
+    required: true, // Disease name is required
+    unique: true,   // Each disease should be unique
+  },
+  health_practice: {
+    type: String,
+    required: true, // Health practice is required
+  }, 
   recommendation: { type: String, required: true },
-});
+},{ timestamps: true });
 const glossarySchema = new Schema({
     term: {
       type: String,
