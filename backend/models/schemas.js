@@ -1,13 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const userSchema = new Schema({
-    name: {type:String},
-    email: {type:String},
-    website: {type:String},
-    entryDate: {type:Date, default:Date.now}
-})
-
 const contactSchema = new Schema({
     email: {type:String,},
     website: {type:String,},
@@ -18,6 +11,9 @@ const contactSchema = new Schema({
 
 
 const recipieSchema = new mongoose.Schema({
+  id: {
+    type: Number
+  },
   recipe_name: {
     type: String,
     required: true
@@ -62,21 +58,21 @@ const recipieSchema = new mongoose.Schema({
       rating: { type: Number, required: true, min: 1, max: 5 }, 
       comment: { type: String, required: true }
     }
-  ]
+  ],
+  like_count: {type: Number, default: 0},
+  dislike_count: {type: Number, default: 0},
+  reports: [
+    {
+      message: { type: String, required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ], // New field for storing reports
 });
-
-
-
 
 // Define a schema for health recommendations
 const HealthRecomSchema = new mongoose.Schema({
   recommendation: { type: String, required: true },
 });
-
-
-
-
-
 const glossarySchema = new Schema({
     term: {
       type: String,
@@ -132,17 +128,19 @@ const RecipeSubmitSchema = new mongoose.Schema({
   
 });
 
-  const Users = mongoose.model('Users', userSchema, 'users')
-const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
 
-
-
-const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
-
-  const CookingGlossary = mongoose.model('CookingGlossary', glossarySchema, 'cooking_glossary');
+//for login/signup
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  isAdmin: { type: Boolean, default: false },
+});
   
-
-
+const User = mongoose.model('User', userSchema, 'user')
+const Contact = mongoose.model('Contact', contactSchema, 'contact_form')
+const Recipe = mongoose.model('Recipe', recipieSchema, 'recipe');
+const CookingGlossary = mongoose.model('CookingGlossary', glossarySchema, 'cooking_glossary');
 const HealthRecom = mongoose.model('HealthRecom', HealthRecomSchema, "HealthRecom");
 //Ipsit
 const GroceryStore = mongoose.model('GroceryStore', GroceryStoreSchema, 'stores' )
@@ -151,7 +149,8 @@ const FAQ = mongoose.model('FAQ', FAQSchema)
 const Meal = mongoose.model('Meal', MealSchema)
 const RecipeSubmit= mongoose.model('RecipeSubmit', RecipeSubmitSchema, 'RecipeSubmit')
 
-const mySchemas = {'Users':Users, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary, 'GroceryStore':GroceryStore, 'About':About, 'FAQ':FAQ, 'Meal':Meal, 'RecipeSubmit':RecipeSubmit}
+const mySchemas = {'User':User, 'Contact':Contact, 'Recommendations': HealthRecom, 'Recipe':Recipe, 'CookingGlossary':CookingGlossary, 'GroceryStore':GroceryStore, 'About':About, 'FAQ':FAQ, 'Meal':Meal, 'RecipeSubmit':RecipeSubmit}
+
 
 module.exports = mySchemas
 

@@ -1,0 +1,102 @@
+/* Main container for the page */
+.random-recipe-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Page title */
+  .random-recipe-container h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+  
+  /* Page description */
+  .random-recipe-container p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Button styling */
+  .random-recipe-button {
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #ff7e5f;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+  
+  .random-recipe-button:hover {
+    transform: scale(1.05);
+    background-color: #ffdfd4;
+  }
+  
+  /* Recipe details container */
+  .recipe-details {
+    background: #ffffff;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+    margin-top: 20px;
+    overflow-y: auto;
+    text-align: center;
+  }
+  
+  /* Recipe title */
+  .recipe-title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Recipe image */
+  .recipe-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  /* Recipe information section */
+  .recipe-info {
+    margin-bottom: 20px;
+  }
+  
+  /* Ingredients list */
+  .recipe-details ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .recipe-details ul li {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  /* Instructions text */
+  .recipe-details p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
