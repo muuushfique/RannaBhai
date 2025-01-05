@@ -91,7 +91,7 @@ function Nav() {
             <Link to="/about-us" className="nav-dropdown-link">
               <i className="fa fa-info-circle"></i> About Us
             </Link>
-            <Link to="/health-recommendations" className="nav-dropdown-link">
+            <Link to="/healthrecommendations" className="nav-dropdown-link">
               <i className="fa fa-stethoscope"></i> Health
             </Link>
             <Link to="/glossary" className="nav-dropdown-link">
