@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
-  const [filter, setFilter] = useState('both'); // 'both', 'veg', 'non-veg'
+  const [filter, setFilter] = useState('both'); 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -27,19 +27,19 @@ function Ingredients() {
     fetchIngredients();
   }, []);
 
-  // Filter ingredients based on search term
+  //filter
   const filteredIngredients = ingredients.filter((ingredient) =>
     ingredient.ingredient.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Add ingredient to calculation list
+  //add to calculation list
   const addIngredientToList = (ingredient) => {
     if (!selectedIngredients.some((item) => item.id === ingredient.id)) {
       setSelectedIngredients([...selectedIngredients, ingredient]);
     }
   };
 
-  // Remove ingredient from calculation list
+  // remove from calculation list
   const removeIngredientFromList = (id) => {
     setSelectedIngredients(selectedIngredients.filter((item) => item.id !== id));
     const updatedQuantities = { ...quantities };
@@ -47,12 +47,12 @@ function Ingredients() {
     setQuantities(updatedQuantities);
   };
 
-  // Handle quantity input change
+  //quantity input
   const handleQuantityChange = (id, value) => {
     setQuantities({ ...quantities, [id]: parseFloat(value) || 0 });
   };
 
-  // Calculate total nutrition
+  //Calculate
   const calculateNutrition = () => {
     if (selectedIngredients.length === 0) {
       setErrorMessage('No ingredient added');
@@ -86,7 +86,7 @@ function Ingredients() {
   };
 
   if (selectedIngredient) {
-    // Ingredient Details Interface
+    //ingredient Details Interface
     return (
       <div className="ingredient-details">
         <h1>{selectedIngredient.ingredient}</h1>
