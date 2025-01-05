@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import jsPDF from 'jspdf'; // Import jsPDF
+import jsPDF from 'jspdf'; 
 
 function Home() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('both'); // 'both', 'veg', or 'nonveg'
+  const [filter, setFilter] = useState('both'); //'both','veg',or'nonveg'
 
-  // Fetch recipes from the backend
+  //fetch
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch('http://localhost:1240/recipes'); // Adjust the URL if needed
+        const response = await fetch('http://localhost:1240/recipes'); 
         if (!response.ok) {
           throw new Error('Failed to fetch recipes');
         }
@@ -28,7 +28,7 @@ function Home() {
     fetchRecipes();
   }, []);
 
-  // Handle Like
+  
   const handleLike = async (recipeId) => {
     try {
       setRecipes((prevRecipes) =>
@@ -60,7 +60,7 @@ function Home() {
     }
   };
 
-  // Handle Dislike
+  
   const handleDislike = async (recipeId) => {
     try {
       setRecipes((prevRecipes) =>
@@ -92,7 +92,7 @@ function Home() {
     }
   };
 
-  // Function to generate and download the PDF
+  //PDF
   const downloadRecipePDF = async (recipe) => {
     const doc = new jsPDF();
 
@@ -100,7 +100,7 @@ function Home() {
     const loadImageAsBase64 = (url) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = "anonymous"; // Enable cross-origin to avoid issues
+        img.crossOrigin = "anonymous"; 
         img.src = url;
         img.onload = () => {
           const canvas = document.createElement("canvas");
@@ -116,13 +116,13 @@ function Home() {
     };
 
     try {
-      // Convert the recipe image URL to Base64
+      
       const imageData = await loadImageAsBase64(recipe.image_link);
 
-      // Add the image to the PDF
-      doc.addImage(imageData, "JPEG", 10, 10, 50, 50); // Adjust position and size
+      
+      doc.addImage(imageData, "JPEG", 10, 10, 50, 50); 
 
-      // Add recipe details
+      
       doc.setFontSize(18);
       doc.text(recipe.recipe_name, 70, 20);
       doc.setFontSize(12);
@@ -152,11 +152,11 @@ function Home() {
     }
   };
 
-  // Filtered recipes based on the current filter
+  //filtered recipes
   const filteredRecipes = recipes.filter((recipe) => {
     if (filter === 'veg') return recipe.diet_type === 'veg';
     if (filter === 'nonveg') return recipe.diet_type === 'non-veg';
-    return true; // Default: Show all recipes
+    return true; //default
   });
 
   if (loading) return <p>Loading...</p>;
