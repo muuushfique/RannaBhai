@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 function IngredientDetails() {
-  const { id } = useParams(); // Fetch the 'id' from the URL
+  const { id } = useParams(); 
   console.log(id)
-  const navigate = useNavigate(); // Navigate back if needed
-  const [ingredient, setIngredient] = useState(null); // State to store ingredient details
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const navigate = useNavigate(); 
+  const [ingredient, setIngredient] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
-  // Fetch ingredient details when the component loads
+  
   useEffect(() => {
     const fetchIngredientDetails = async () => {
       try {
@@ -20,23 +20,23 @@ function IngredientDetails() {
           throw new Error('Failed to fetch ingredient details');
         }
         const data = await response.json();
-        setIngredient(data); // Store the fetched ingredient data
+        setIngredient(data); 
       } catch (err) {
         console.error(err.message);
-        setError(err.message); // Store error if fetch fails
+        setError(err.message); 
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false); 
       }
     };
     fetchIngredientDetails();
   }, [id]);
 
-  // Handle loading state
+  
   if (loading) {
     return <p>Loading ingredient details...</p>;
   }
 
-  // Handle error state
+  
   if (error) {
     return (
       <div>
@@ -46,7 +46,7 @@ function IngredientDetails() {
     );
   }
 
-  // Render ingredient details
+  //ingredient details
   return (
     <div className="ingredient-details">
       <h1>{ingredient.ingredient}</h1>
