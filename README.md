@@ -101,3 +101,155 @@ Test and expand your culinary knowledge with our interactive trivia game featuri
 
 Before you begin, ensure you have the following installed on your system:
 
+Node.js (version 14.0 or higher)
+node --version
+
+npm (comes with Node.js)
+npm --version
+
+Git for version control
+git --version
+
+
+### Installation
+
+1. **Clone the repository**
+git clone https://github.com/muuushfique/RannaBhai.git
+cd RannaBhai
+
+2. **Install dependencies**
+npm install
+
+3. **Set up environment variables**
+Create a .env file in the root directory
+cp .env.example .env
+
+Add your Spoonacular API key
+REACT_APP_SPOONACULAR_API_KEY=your_api_key_here
+
+4. **Start the development server**
+npm start
+
+5. **Open your browser**
+Navigate to `http://localhost:3000` to view the application.
+
+---
+
+## 💡 Usage
+
+### Getting Started with RannaBhai
+
+1. **Create an Account**: Sign up for a free account to access personalized features
+2. **Explore Recipes**: Browse through thousands of recipes using our search and filter options
+3. **Plan Your Meals**: Use the meal planning tool to organize your weekly menu
+4. **Play Trivia**: Test your food knowledge with our interactive trivia game
+5. **Track Health Goals**: Set dietary preferences and track your nutritional intake
+
+### Key Features Guide
+
+**Recipe Discovery:**
+- Use the search bar to find specific recipes or ingredients
+- Filter by dietary restrictions, cooking time, or cuisine type
+- Save favorite recipes to your personal collection
+
+**Meal Planning:**
+- Drag recipes to your weekly calendar
+- Generate automatic shopping lists
+- View nutritional summaries for planned meals
+
+**Health Tracking:**
+- Set dietary goals and preferences
+- Monitor daily nutritional intake
+- Receive personalized recipe recommendations
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help make RannaBhai even better:
+
+### How to Contribute
+
+1. **Fork the Project**
+git fork https://github.com/muuushfique/RannaBhai.git
+
+2. **Create a Feature Branch**
+git checkout -b feature/AmazingFeature
+
+3. **Commit Your Changes**
+git commit -m 'Add some AmazingFeature'
+
+4. **Push to the Branch**
+git push origin feature/AmazingFeature
+
+5. **Open a Pull Request**
+
+### Contribution Guidelines
+
+- Follow the existing code style and conventions
+- Write clear, descriptive commit messages
+- Add tests for new features when applicable
+- Update documentation for any API changes
+- Be respectful and constructive in discussions
+
+---
+
+## 🐛 Issues and Bug Reports
+
+Found a bug or have a feature request? We'd love to hear from you!
+
+- **Bug Reports**: [Create an issue](https://github.com/muuushfique/RannaBhai/issues) with detailed steps to reproduce
+- **Feature Requests**: Describe your idea and how it would benefit users
+- **Questions**: Check existing issues or start a discussion
+
+---
+
+## 📝 License and Usage Rights
+
+**Important:** This project is currently unlicensed, which means it is protected by copyright law[17][18]. Without a license, the default copyright laws apply, meaning that all rights are reserved to the author and no one may reproduce, distribute, or create derivative works from this work without explicit permission[17][21].
+
+**What this means for users:**
+- You can view the source code since it's publicly available on GitHub
+- You can fork the repository for personal viewing (as per GitHub's Terms of Service[22])
+- You **cannot** legally use, modify, distribute, or create derivative works without explicit permission
+- Commercial use is strictly prohibited without a proper license
+
+**For potential contributors:** Please contact the repository owner before making any contributions or using this code in your projects.
+
+**Future licensing:** The author may choose to add an open-source license in the future. Popular options include MIT, Apache 2.0, or GPL licenses that would grant users various rights to use and modify the code[1][17].
+
+---
+
+## 👨‍💻 Author & Contact
+
+**Muuushfique**
+- GitHub: [@muuushfique](https://github.com/muuushfique)
+- Project Link: [https://github.com/muuushfique/RannaBhai](https://github.com/muuushfique/RannaBhai)
+
+---
+
+## 🙏 Acknowledgments
+
+Special thanks to:
+
+- **Spoonacular API** - For providing comprehensive food and recipe data
+- **React Community** - For the excellent documentation and community support
+- **Open Source Contributors** - For the various libraries and tools that make this project possible
+- **Food Enthusiasts** - For inspiring the creation of this platform
+
+---
+
+## 📊 Project Status
+
+- **Current Version**: 1.0.0
+- **Development Status**: Active Development
+- **Last Updated**: June 2025
+- **Compatibility**: Modern browsers (Chrome, Firefox, Safari, Edge)
+
+---
+
+<div align="center">
+<p>⭐ Star this repository if you found it helpful!</p>
+<p>Made with ❤️ and lots of ☕</p>
+</div>
+
