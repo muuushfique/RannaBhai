@@ -217,6 +217,7 @@ An open-source license may be added later.
 ## 👨‍💻 Author & Contact
 
 **Muuushfique**
+- Mail: [muuushfique@gmail.com](muuushfique@gmail.com)
 - GitHub: [@muuushfique](https://github.com/muuushfique)
 - Project: [RannaBhai](https://github.com/muuushfique/RannaBhai)
 
