@@ -106,7 +106,7 @@ Verify installation:
 node --version
 npm --version
 git --version
-
+```
 
 ### Steps
 
@@ -114,26 +114,26 @@ git --version
    ```bash
    git clone https://github.com/muuushfique/RannaBhai.git
    cd RannaBhai
-   
+   ```
 
 2. **Install dependencies:**
    ```bash
    npm install
-   
+   ```
 
 3. **Set up environment variables:**
    ```bash
    cp .env.example .env
-   
+   ```
    Then edit \`.env\` and add your Spoonacular API key:
-   
+   ```bash
    REACT_APP_SPOONACULAR_API_KEY=your_api_key_here
-   
+   ``` 
 
 4. **Start the development server:**
    ```bash
    npm start
-   
+   ```
 
 5. **View in browser:**
    Open [http://localhost:3000](http://localhost:3000)
@@ -161,18 +161,19 @@ We welcome contributions!
 1. **Fork the repository:**
    ```bash
    git fork https://github.com/muuushfique/RannaBhai.git
+   ```
 2. **Create a feature branch:**
    ```bash
    git checkout -b feature/AmazingFeature
-   
+   ```
 3. **Commit changes:**
    ```bash
    git commit -m "Add AmazingFeature"
-
+   ```
 4. **Push branch:**
    ```bash
    git push origin feature/AmazingFeature
-   
+   ```
 5. **Open a pull request**
 
 ### Guidelines
