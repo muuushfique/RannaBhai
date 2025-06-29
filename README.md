@@ -9,13 +9,11 @@
   <h1>🍽️ RannaBhai</h1>
   <p><strong>Your Ultimate Culinary Companion for Recipe Discovery and Meal Planning</strong></p>
   
-  <p>
     <a href="#features">Features</a> •
     <a href="#Built">Build</a> •
     <a href="#installation">Installation</a> •
     <a href="#usage">Usage</a> •
     <a href="#contributing">Contributing</a>
-  </p>
 </div>
 
 ---
