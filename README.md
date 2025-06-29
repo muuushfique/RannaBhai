@@ -11,7 +11,7 @@
   
   <p>
     <a href="#features">Features</a> •
-    <a href="#demo">Demo</a> •
+    <a href="#Built">Build</a> •
     <a href="#installation">Installation</a> •
     <a href="#usage">Usage</a> •
     <a href="#contributing">Contributing</a>
@@ -36,7 +36,7 @@ The application combines modern web technologies with intuitive design to create
 
 ---
 
-## ✨ Features
+### ✨ Features
 
 ### 🔥 **Trending Recipes**
 Discover the most popular and trending recipes curated by our community and culinary experts. Stay updated with seasonal favorites and viral cooking trends.
@@ -135,7 +135,7 @@ Navigate to `http://localhost:3000` to view the application.
 
 ---
 
-## 💡 Usage
+### 💡 Usage
 
 ### Getting Started with RannaBhai
 
@@ -164,7 +164,7 @@ Navigate to `http://localhost:3000` to view the application.
 
 ---
 
-## 🤝 Contributing
+### 🤝 Contributing
 
 We welcome contributions from the community! Here's how you can help make RannaBhai even better:
 
