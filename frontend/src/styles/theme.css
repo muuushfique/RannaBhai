@@ -1,16 +1,16 @@
 :root {
   --bg: #faf6f0;
   --surface: #ffffff;
-  --surface-soft: #f4ede3;
-  --sidebar: #1a1412;
+  --surface-soft: #f3ece2;
+  --sidebar: #181311;
   --sidebar-hover: rgba(250, 246, 240, 0.08);
   --sidebar-text: #f3ece4;
   --sidebar-muted: rgba(243, 236, 228, 0.56);
 
   --ink: #1c1613;
   --muted: #6b5e54;
-  --border: #e8dfd3;
-  --border-strong: #d6c8b6;
+  --border: #e6dccf;
+  --border-strong: #d4c5b3;
 
   --accent: #d95d39;
   --accent-hover: #bf4a28;
@@ -34,10 +34,38 @@
   --radius-pill: 9999px;
 
   --shadow-sm: 0 2px 10px rgba(28, 22, 19, 0.04);
-  --shadow-md: 0 12px 32px rgba(28, 22, 19, 0.07);
-  --shadow-lg: 0 20px 50px rgba(28, 22, 19, 0.12);
+  --shadow-md: 0 14px 34px rgba(28, 22, 19, 0.08);
+  --shadow-lg: 0 22px 54px rgba(28, 22, 19, 0.14);
 
   --sidebar-w: 258px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme='dark'] {
+  --bg: #120f0d;
+  --surface: #1c1714;
+  --surface-soft: #261f1b;
+  --ink: #f5eee6;
+  --muted: #a8998c;
+  --border: #2f2621;
+  --border-strong: #43362f;
+
+  --accent: #e56b47;
+  --accent-hover: #f07b58;
+  --accent-soft: rgba(229, 107, 71, 0.16);
+
+  --sage: #469e70;
+  --sage-soft: rgba(70, 158, 112, 0.16);
+
+  --gold: #e6ac3c;
+  --gold-soft: rgba(230, 172, 60, 0.16);
+
+  --danger: #e25c5c;
+  --danger-soft: rgba(226, 92, 92, 0.16);
+
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
 *,
@@ -54,6 +82,7 @@ body {
   color: var(--ink);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.35s var(--ease-out), color 0.35s var(--ease-out);
 }
 
 h1,
@@ -90,7 +119,57 @@ img {
 }
 
 /* ==========================================
-   APP SHELL (SIDEBAR + MAIN CONTENT)
+   KEYFRAME ANIMATIONS & SKELETONS
+   ========================================== */
+@keyframes rbFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rbToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes rbShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.rb-page {
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 1.85rem 2.25rem 4rem;
+  animation: rbFadeUp 0.42s var(--ease-out) both;
+}
+
+.rb-skeleton {
+  height: 260px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--surface-soft) 25%, var(--border) 50%, var(--surface-soft) 75%);
+  background-size: 200% 100%;
+  animation: rbShimmer 1.6s infinite;
+}
+
+/* ==========================================
+   APP SHELL (SIDEBAR + TOP UTILITY BAR + MAIN)
    ========================================== */
 .rb-shell {
   display: flex;
@@ -109,14 +188,14 @@ img {
   flex-direction: column;
   z-index: 200;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s var(--ease-out);
 }
 
 .rb-brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.35rem 1.25rem 1.15rem;
+  padding: 1.25rem 1.25rem 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -145,10 +224,10 @@ img {
 .rb-nav-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 0.75rem 1.25rem;
+  padding: 0.9rem 0.75rem 1.2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 1.1rem;
 }
 
 .rb-nav-group-title {
@@ -157,30 +236,31 @@ img {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--sidebar-muted);
-  padding: 0 0.75rem 0.4rem;
+  padding: 0 0.75rem 0.35rem;
 }
 
 .rb-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.18rem;
 }
 
 .rb-nav-link {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.56rem 0.78rem;
+  padding: 0.54rem 0.78rem;
   border-radius: var(--radius-sm);
-  font-size: 0.87rem;
+  font-size: 0.86rem;
   font-weight: 500;
   color: rgba(243, 236, 228, 0.82);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .rb-nav-link:hover {
   background: var(--sidebar-hover);
   color: #fff;
+  transform: translateX(3px);
 }
 
 .rb-nav-link.active {
@@ -205,6 +285,29 @@ img {
   flex-direction: column;
 }
 
+/* Sticky Top Utility Bar */
+.rb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 2.25rem;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.rb-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
 .rb-mobile-bar {
   display: none;
   align-items: center;
@@ -217,13 +320,6 @@ img {
   z-index: 150;
 }
 
-.rb-page {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2.25rem 2.25rem 4rem;
-}
-
 /* ==========================================
    COMMON HEADER, CARDS, BUTTONS, FORMS
    ========================================== */
@@ -233,7 +329,7 @@ img {
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.85rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
@@ -266,16 +362,55 @@ img {
   border-radius: var(--radius-md);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-}
-
-.rb-card-hover {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: background-color 0.3s ease, border-color 0.25s ease, transform 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out);
 }
 
 .rb-card-hover:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-md);
   border-color: var(--border-strong);
+}
+
+.rb-media-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+  background: var(--surface-soft);
+}
+
+.rb-media-wrap .rb-recipe-img {
+  margin-bottom: 0;
+  transition: transform 0.55s var(--ease-out);
+}
+
+.rb-card-hover:hover .rb-media-wrap .rb-recipe-img {
+  transform: scale(1.05);
+}
+
+.rb-bookmark-fab {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(24, 19, 17, 0.75);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.rb-bookmark-fab:hover {
+  transform: scale(1.1);
+}
+
+.rb-bookmark-fab.saved {
+  background: var(--accent);
+  color: #fff;
 }
 
 .rb-grid-2 {
@@ -302,16 +437,21 @@ img {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.65rem 1.25rem;
+  padding: 0.64rem 1.22rem;
   border-radius: var(--radius-pill);
-  font-size: 0.88rem;
+  font-size: 0.87rem;
   font-weight: 600;
-  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rb-btn:active {
+  transform: scale(0.97);
 }
 
 .rb-btn-primary {
   background: var(--accent);
   color: #fff;
+  box-shadow: 0 4px 14px rgba(217, 93, 57, 0.24);
 }
 
 .rb-btn-primary:hover {
@@ -380,7 +520,7 @@ img {
 
 .rb-badge-gold {
   background: var(--gold-soft);
-  color: #9e6b08;
+  color: var(--gold);
 }
 
 /* Forms */
@@ -401,7 +541,7 @@ img {
 .rb-select,
 .rb-textarea {
   width: 100%;
-  padding: 0.7rem 0.95rem;
+  padding: 0.68rem 0.95rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
   background: var(--surface);
@@ -415,7 +555,7 @@ img {
 .rb-select:focus,
 .rb-textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(217, 93, 57, 0.14);
+  box-shadow: 0 0 0 3px rgba(217, 93, 57, 0.15);
 }
 
 .rb-textarea {
@@ -446,14 +586,13 @@ img {
 
 .rb-empty {
   text-align: center;
-  padding: 3.25rem 1.5rem;
+  padding: 3rem 1.5rem;
   border-radius: var(--radius-md);
   border: 1px dashed var(--border-strong);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--surface);
   color: var(--muted);
 }
 
-/* Recipe Card Media */
 .rb-recipe-img {
   width: 100%;
   height: 196px;
@@ -467,7 +606,7 @@ img {
   background: linear-gradient(135deg, #1a1412 0%, #342118 58%, #572b1c 100%);
   color: #faf6f0;
   border-radius: var(--radius-lg);
-  padding: 3rem;
+  padding: 2.85rem;
   position: relative;
   overflow: hidden;
   margin-bottom: 2rem;
@@ -475,7 +614,7 @@ img {
 }
 
 .rb-hero h1 {
-  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  font-size: clamp(2.1rem, 4.2vw, 3.45rem);
   color: #fff;
   margin-bottom: 0.85rem;
 }
@@ -483,38 +622,170 @@ img {
 .rb-hero p {
   color: rgba(250, 246, 240, 0.82);
   max-width: 38rem;
-  font-size: 1.02rem;
+  font-size: 1.01rem;
 }
 
 .rb-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1.4rem;
 }
 
 .rb-tab {
-  padding: 0.52rem 1.05rem;
+  padding: 0.48rem 1rem;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-strong);
   background: var(--surface);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--muted);
   transition: all 0.2s ease;
 }
 
+.rb-tab:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
 .rb-tab.active {
-  background: var(--ink);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 
 .rb-overlay-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 190;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(3px);
+  z-index: 240;
+}
+
+/* ==========================================
+   TOASTS, GROCERY DRAWER & MODAL
+   ========================================== */
+.rb-toast-stack {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 360px;
+}
+
+.rb-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.05rem;
+  border-radius: var(--radius-sm);
+  background: var(--sidebar);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: rbToastIn 0.28s var(--ease-out) both;
+}
+
+.rb-toast-success {
+  border-left: 4px solid var(--sage);
+}
+
+.rb-toast-info {
+  border-left: 4px solid var(--gold);
+}
+
+.rb-toast-error {
+  border-left: 4px solid var(--danger);
+}
+
+.rb-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(410px, 100vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 260;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: rbToastIn 0.28s var(--ease-out) both;
+}
+
+.rb-drawer-head {
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rb-drawer-add {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rb-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.rb-cart-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  font-size: 0.88rem;
+}
+
+.rb-cart-row.done {
+  opacity: 0.65;
+}
+
+.rb-drawer-foot {
+  padding: 1rem 1.4rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.rb-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.rb-modal {
+  width: min(680px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-lg);
+  animation: rbFadeUp 0.25s var(--ease-out) both;
 }
 
 /* Responsive */
@@ -539,6 +810,9 @@ img {
   }
   .rb-mobile-bar {
     display: flex;
+  }
+  .rb-topbar {
+    padding: 0.65rem 1.15rem;
   }
   .rb-page {
     padding: 1.35rem 1.15rem 3rem;

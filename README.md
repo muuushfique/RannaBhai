@@ -1,248 +1,99 @@
-<div align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
-  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
-  <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
-</div>
+# RannaBhai — Culinary Companion, Meal Planner & Nutrition Studio (`v2.0.0`)
 
-<div align="center">
-  <h1>🍽️ RannaBhai</h1>
-  <p><strong>Your Ultimate Culinary Companion for Recipe Discovery and Meal Planning</strong></p>
-  
-  <a href="#-features">Features</a> •
-  <a href="#-built-with">Built With</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-usage">Usage</a> •
-  <a href="#-contributing">Contributing</a>
-</div>
+[![Live Production](https://img.shields.io/badge/Live-rannabhai.vercel.app-d95d39?style=flat-square&logo=vercel)](https://rannabhai.vercel.app)
+[![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)](https://react.dev)
+[![Express](https://img.shields.io/badge/Express-4.21-1a1412?style=flat-square&logo=express)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-2f6f4e?style=flat-square&logo=mongodb)](https://www.mongodb.com)
+
+**RannaBhai** (*"Cooking Brother"*) is a full-stack MERN culinary platform designed to make everyday cooking, meal planning, nutrition tracking, and local grocery shopping effortless.
+
+Built with a cohesive **Warm Saffron & Hearth** editorial design system (with both **Warm Parchment Light** and **Midnight Espresso Dark** modes), interactive cooking controls, persistent grocery & cookbook drawers, and a unified 6-tab **Admin Studio**.
 
 ---
 
-## 🎯 About The Project
+## Core Features
 
-**RannaBhai** is a comprehensive web application designed to revolutionize your cooking experience. Whether you're a seasoned chef or a beginner in the kitchen, RannaBhai provides you with all the tools you need to discover amazing recipes, plan your meals efficiently, and make informed, health-conscious decisions about your diet.
+### 1. Recipe Discovery & Interactive Kitchen Controls
+- **Recipe Catalog (`/recipe`):** Live keyword search, regional cuisine tabs (Bengali, Indian, Italian, Thai, Mexican, Greek, Chinese, American, Russian), Vegetarian/Non-Veg filters, popularity & calorie sorting, Grid vs. Compact List layout switcher, and **My Saved Cookbook** bookmark filter.
+- **Interactive Recipe Studio (`/RecipeDetails/:id`):**
+  - **Dynamic Serving Multiplier (`- / + Servings`):** Automatically scales ingredient quantities and calories in real time.
+  - **Step-by-Step Cook Mode:** Focused single-step cooking view with progress tracking.
+  - **Built-in Kitchen Timer:** Interactive countdown timer (`5m`, `10m`, `15m`, `30m` presets) with Web Audio completion chime.
+  - **One-Click PDF Recipe Cards:** Client-side printable recipe card generator powered by `jsPDF`.
+  - **Community Tasting Reviews:** Star ratings, average score badges, and live review threads.
+- **Daily Spotlight & Leaderboard (`/recipe-of-the-day`, `/trending-recipe`):** Automated daily chef spotlight and community upvote leaderboard.
+- **Pantry Ingredient Matcher & Random Roulette (`/spoonacular`, `/random-recipe`):** Enter comma-separated ingredients in your fridge to match recipes via backend proxy with automatic local MongoDB fallback.
 
-The application combines modern web technologies with intuitive design to create a seamless user experience that makes cooking accessible, enjoyable, and educational for everyone.
+### 2. Persistent Global Grocery Cart & Smart Meal Planner
+- **Slide-Over Grocery Cart Drawer:** Accessible from any page via the top utility bar — add ingredients from any recipe, add custom items, check off purchased groceries, or copy to clipboard.
+- **Daily & 7-Day Weekly Meal Planner (`/meal-planning`):** Generate calorie-targeted daily menus (Breakfast, Lunch, Dinner) or a full Monday–Sunday weekly schedule, with automatic grocery list extraction and one-click push to the Grocery Cart.
 
----
+### 3. Nutrition Lab, Wellness & Local Market Finder
+- **Ingredients & Meal Nutrition Calculator (`/ingredients`, `/ingredient/:id`):** Browse 37+ ingredients with macro breakdowns (Calories, Protein, Carbs, Fats, Fiber, Calcium, Minerals), see matching recipes, and calculate multi-serving basket macro totals.
+- **BMI & Calorie Guide (`/bmi`):** Validated metric (`kg/cm`) and imperial (`lbs/in`) BMI calculator with healthy weight ranges and daily calorie targets.
+- **Food Trivia Challenge (`/trivia`):** Interactive culinary & nutrition quiz with score, streak counter, and chef explanations.
+- **Grocery Stores Near Me (`/near-me`):** Live `React-Leaflet` OpenStreetMap store locator with browser Geolocation, Haversine distance sorting, and radius slider.
+- **Health Practices & Cooking Glossary (`/healthrecommendations`, `/glossary`, `/faq`):** Searchable 59+ condition-focused dietary practices and culinary dictionary.
 
-## 🚀 What Makes RannaBhai Special
-
-- **Smart Recipe Discovery**: Access thousands of curated recipes from around the world
-- **Intelligent Meal Planning**: Plan your entire week with our advanced meal planning system
-- **Health-First Approach**: Get personalized nutrition recommendations based on your dietary preferences
-- **Interactive Learning**: Learn about food through our engaging trivia game powered by Spoonacular API
-- **Community Driven**: Share your culinary creations and discover recipes from other food enthusiasts
-
----
-
-## ✨ Features
-
-### 🔥 Trending Recipes
-Discover the most popular and trending recipes curated by our community and culinary experts.
-
-### 📅 Advanced Meal Planning
-- Plan meals for the entire week with drag-and-drop functionality
-- Automatic grocery list generation
-- Nutritional analysis
-- Budget estimation
-
-### 💪 Personalized Health Recommendations
-- Custom dietary suggestions
-- Nutritional breakdowns
-- Allergen detection and alternatives
-- Fitness tracker integration
-
-### 🌟 Daily Recipe Showcase
-Get inspired every day with our "Recipe of the Day."
-
-### 🎮 Spoonacular Trivia Game
-Test your knowledge with:
-- Ingredient and cooking technique questions
-- Progressive levels and achievements
-- Educational content
-
-### 🔐 Secure User Authentication
-- Protected accounts
-- Personal collections and meal history
-- Social sharing and following
-
-### 📱 Responsive Design
-- Works on all devices
-- Fast loading and smooth experience
+### 4. Standard 6-Tab Admin Studio (`/admin-panel`)
+- **Overview & Analytics:** Live KPI cards (Recipes, Community Likes, Open Reports, Meals/FAQs) and visual popularity bar charts.
+- **Recipes Manager:** Searchable catalog with full **Edit Recipe Modal**, New Recipe publisher, and deletion.
+- **Moderation Queue:** Inspect flagged recipe reports and **Resolve & Dismiss** reports in one click.
+- **FAQs & Planner Meals CRUD:** Create, **Inline Edit**, and delete FAQs and Meal Planner dishes.
+- **Contact Inbox & User Roles:** Review/delete contact submissions and manage registered user Admin permissions.
 
 ---
 
-## 🛠️ Built With
+## Tech Stack
 
-**Frontend:**
-- React.js
-- CSS3 / Styled Components
-- JavaScript ES6+
-
-**Backend & APIs:**
-- Node.js
-- Spoonacular API
-- RESTful architecture
-
-**Development Tools:**
-- Git & GitHub
-- npm/Yarn
-- VS Code
+- **Frontend:** React 19, React Router 7, Lucide Icons, React-Leaflet, jsPDF, Custom CSS Design System (`theme.css`)
+- **Backend:** Node.js, Express, Mongoose (MongoDB Atlas), JWT + `bcryptjs` Authentication
+- **Deployment:** Full-stack Vercel deployment (`vercel.json` routing React SPA + `/api/*` Express Serverless Function)
 
 ---
 
-## 🚀 Installation
+## Project Structure
 
-### Prerequisites
-
-- Node.js (14+)
-- npm
-- Git
-
-Verify installation:
-
-```bash
-node --version
-npm --version
-git --version
+```text
+RannaBhai/
+├── api/
+│   └── index.js                # Vercel Serverless Function entry wrapping Express
+├── backend/
+│   ├── controllers/            # FAQ & Meal CRUD controllers
+│   ├── models/                 # Mongoose schemas (User, Recipe, Ingredient, Meal, Store, etc.)
+│   ├── routes/                 # REST API endpoints & Spoonacular fallback proxy
+│   └── index.js                # Express app & cached MongoDB connection
+├── frontend/
+│   ├── public/                 # Static assets & Google Fonts (Fraunces + Plus Jakarta Sans)
+│   └── src/
+│       ├── components/         # Nav, TopBar, Homepage, Home, RecipeDetails, AdminPanel, etc.
+│       ├── context/            # AuthContext & KitchenContext (Theme, Bookmarks, Cart, Toasts)
+│       ├── services/           # Axios client, procedure/nutrition parsers & jsPDF exporter
+│       └── styles/             # Unified Light/Dark Saffron & Hearth theme
+└── vercel.json                 # Full-stack Vercel build & routing configuration
 ```
 
-### Steps
+---
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/muuushfique/RannaBhai.git
-   cd RannaBhai
-   ```
+## Local Development
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Install backend & frontend dependencies
+cd backend && npm install
+cd ../frontend && npm install --legacy-peer-deps
 
-3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit \`.env\` and add your Spoonacular API key:
-   ```bash
-   REACT_APP_SPOONACULAR_API_KEY=your_api_key_here
-   ``` 
+# 2. Configure backend/.env
+# DB_URI=mongodb+srv://...
+# JWT_SECRET=your_jwt_secret
+# SPOONACULAR_API_KEY=your_optional_key
 
-4. **Start the development server:**
-   ```bash
-   npm start
-   ```
-
-5. **View in browser:**
-   Open [http://localhost:3000](http://localhost:3000)
+# 3. Start full-stack development (Express on :1240 + React on :3000)
+cd .. && npm run dev
+```
 
 ---
 
-## 💡 Usage
+## Live Deployment
 
-### Getting Started
-
-1. **Create an Account:** Sign up to access personalized features.
-2. **Explore Recipes:** Search and filter thousands of recipes.
-3. **Plan Your Meals:** Organize your weekly menu.
-4. **Play Trivia:** Test your culinary knowledge.
-5. **Track Health Goals:** Set dietary preferences and monitor intake.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions!
-
-### How to Contribute
-
-1. **Fork the repository:**
-   ```bash
-   git fork https://github.com/muuushfique/RannaBhai.git
-   ```
-2. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit changes:**
-   ```bash
-   git commit -m "Add AmazingFeature"
-   ```
-4. **Push branch:**
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a pull request**
-
-### Guidelines
-
-- Follow code style and conventions
-- Use clear commit messages
-- Add tests for new features
-- Update documentation
-- Be respectful and constructive
-
----
-
-## 🐛 Issues and Bug Reports
-
-Have feedback?
-
-- **Bug Reports:** [Submit an issue](https://github.com/muuushfique/RannaBhai/issues)
-- **Feature Requests:** Share your ideas
-- **Questions:** Start a discussion
-
----
-
-## 📝 License and Usage Rights
-
-**Important:**  
-This project is **unlicensed**. All rights reserved.
-
-**What you can do:**
-- View the source code
-- Fork for personal use (per GitHub ToS)
-
-**What you cannot do:**
-- Use, modify, distribute, or create derivative works without permission
-- Use commercially
-
-**Future licensing:**  
-An open-source license may be added later.
-
----
-
-## 👨‍💻 Author & Contact
-
-**Muuushfique**
-- LinkedIn: [muuushfique](https://www.linkedin.com/in/muuushfique/)
-- Mail: [muuushfique@gmail.com](muuushfique@gmail.com)
-- GitHub: [@muuushfique](https://github.com/muuushfique)
-- Project: [RannaBhai](https://github.com/muuushfique/RannaBhai)
-
----
-
-## 🙏 Acknowledgments
-
-- Spoonacular API
-- React Community
-- Open Source Contributors
-- Food Enthusiasts
-
----
-
-## 📊 Project Status
-
-- **Version:** 1.0.0
-- **Status:** Active Development
-- **Last Updated:** June 2025
-- **Compatibility:** Modern browsers
-
----
-
-<div align="center">
-  <p>⭐ Star this repository if you found it helpful!</p>
-  <p>Made with ❤️ and lots of ☕</p>
-</div>
+- **Production App & API:** [https://rannabhai.vercel.app](https://rannabhai.vercel.app)
+- **Author:** [S. M. Mushfiqur Rahman Nayeem (`@muuushfique`)](https://muuushfique.vercel.app)

@@ -638,12 +638,95 @@ router.get('/api/user/reported-issues', authenticateToken, async (req, res) => {
 });
 
 // Unified Admin endpoints
+router.get('/api/admin/stats', async (req, res) => {
+  try {
+    const [recipes, users, contacts, ingredients, meals, faqs] = await Promise.all([
+      Recipe.find(),
+      User.find().select('-password'),
+      Contact.find().sort({ entryDate: -1 }),
+      Ingredient.countDocuments(),
+      mongoose.connection.db.collection('meals').countDocuments(),
+      mongoose.connection.db.collection('faqs').countDocuments(),
+    ]);
+    let totalLikes = 0;
+    let totalReviews = 0;
+    let openReports = 0;
+    recipes.forEach((r) => {
+      totalLikes += r.like_count || 0;
+      totalReviews += (r.review_list || []).length;
+      openReports += (r.reports || []).length;
+    });
+    res.json({
+      totalRecipes: recipes.length,
+      totalLikes,
+      totalReviews,
+      openReports,
+      totalUsers: users.length,
+      totalContacts: contacts.length,
+      totalIngredients: ingredients,
+      totalMeals: meals,
+      totalFaqs: faqs,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load admin stats', error: err.message });
+  }
+});
+
 router.get('/api/admin/recipes', async (req, res) => {
   try {
     const recipes = await Recipe.find().sort({ createdAt: -1, id: 1 });
     res.json(recipes);
   } catch (err) {
     res.status(500).json({ message: 'Failed to load admin recipes', error: err.message });
+  }
+});
+
+router.put('/api/admin/recipe/:id', async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+
+    const {
+      recipe_name,
+      no_of_servings,
+      ingredient_list,
+      cuisine,
+      diet_type,
+      general_pricing,
+      recipe_procedure,
+      image_link,
+      calories,
+    } = req.body;
+
+    if (recipe_name !== undefined) recipe.recipe_name = String(recipe_name).trim();
+    if (no_of_servings !== undefined) recipe.no_of_servings = Number(no_of_servings) || 2;
+    if (cuisine !== undefined) recipe.cuisine = String(cuisine).trim();
+    if (diet_type !== undefined) recipe.diet_type = String(diet_type).trim();
+    if (general_pricing !== undefined) recipe.general_pricing = String(general_pricing).trim();
+    if (image_link !== undefined) recipe.image_link = String(image_link).trim();
+    if (calories !== undefined) recipe.calories = Number(calories) || 350;
+
+    if (ingredient_list !== undefined) {
+      recipe.ingredient_list = Array.isArray(ingredient_list)
+        ? ingredient_list.map((s) => String(s).trim()).filter(Boolean)
+        : String(ingredient_list)
+            .split(/[\n,]/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+    }
+
+    if (recipe_procedure !== undefined) {
+      recipe.recipe_procedure = Array.isArray(recipe_procedure)
+        ? recipe_procedure.map((s) => String(s).trim()).filter(Boolean)
+        : typeof recipe_procedure === 'string'
+          ? recipe_procedure.split('\n').map((s) => s.trim()).filter(Boolean)
+          : recipe_procedure;
+    }
+
+    await recipe.save();
+    res.json({ message: 'Recipe updated successfully', recipe });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update recipe', error: err.message });
   }
 });
 
@@ -669,6 +752,18 @@ router.get('/api/admin/reports', async (req, res) => {
   }
 });
 
+router.delete('/api/admin/report/:recipeId/:reportId', async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.recipeId);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+    recipe.reports = (recipe.reports || []).filter((r) => String(r._id) !== String(req.params.reportId));
+    await recipe.save();
+    res.json({ message: 'Report resolved and dismissed.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to dismiss report', error: err.message });
+  }
+});
+
 router.delete('/api/admin/recipe/:id', async (req, res) => {
   try {
     const recipe = await findRecipeByParam(req.params.id);
@@ -677,6 +772,45 @@ router.delete('/api/admin/recipe/:id', async (req, res) => {
     res.json({ message: 'Recipe deleted successfully', id: recipe._id });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete recipe', error: err.message });
+  }
+});
+
+router.get('/api/admin/contacts', async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ entryDate: -1 });
+    res.json(contacts);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load contact messages', error: err.message });
+  }
+});
+
+router.delete('/api/admin/contact/:id', async (req, res) => {
+  try {
+    await Contact.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Contact inquiry deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete contact', error: err.message });
+  }
+});
+
+router.get('/api/admin/users', async (req, res) => {
+  try {
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load users', error: err.message });
+  }
+});
+
+router.put('/api/admin/user/:id/role', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.isAdmin = Boolean(req.body.isAdmin);
+    await user.save();
+    res.json({ id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update role', error: err.message });
   }
 });
 
