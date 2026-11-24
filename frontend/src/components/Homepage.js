@@ -1,147 +1,224 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './../Customcss/Home.css';
-import logo from './RannaBhaiw.png';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Search,
+  Sparkles,
+  Calendar,
+  Apple,
+  MapPin,
+  Gamepad2,
+  HeartPulse,
+  Flame,
+  ArrowRight,
+  ChefHat,
+} from 'lucide-react';
+import api, { getRecipeFallbackImage } from '../services/api';
 
+const QUICK_CARDS = [
+  {
+    to: '/meal-planning',
+    icon: Calendar,
+    badge: 'Planner + Grocery',
+    title: 'Smart Meal Planner',
+    desc: 'Generate balanced daily meals by calorie target with an automatic checkable grocery list.',
+  },
+  {
+    to: '/spoonacular',
+    icon: ChefHat,
+    badge: 'Pantry Match',
+    title: 'Cook With What You Have',
+    desc: 'Type the ingredients in your fridge and discover recipes you can cook right now.',
+  },
+  {
+    to: '/ingredients',
+    icon: Apple,
+    badge: 'Nutrition Lab',
+    title: 'Ingredients & Calories',
+    desc: 'Explore 37+ ingredients with full macro breakdowns and build custom meal nutrition totals.',
+  },
+  {
+    to: '/trivia',
+    icon: Gamepad2,
+    badge: 'Interactive Game',
+    title: 'Food Trivia Challenge',
+    desc: 'Test your culinary knowledge across global spices, techniques, and nutrition facts.',
+  },
+  {
+    to: '/near-me',
+    icon: MapPin,
+    badge: 'Interactive Map',
+    title: 'Grocery Stores Near Me',
+    desc: 'Locate nearby grocery markets on a live map with real distance calculation.',
+  },
+  {
+    to: '/healthrecommendations',
+    icon: HeartPulse,
+    badge: 'Wellness Guide',
+    title: 'Health Recommendations',
+    desc: 'Search 59+ condition-focused dietary practices curated for everyday wellbeing.',
+  },
+];
 
-function HomePage() {
+export default function Homepage() {
+  const [query, setQuery] = useState('');
+  const [featured, setFeatured] = useState(null);
+  const [trending, setTrending] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get('/recipe-of-the-day').then((r) => setFeatured(r.data)).catch(() => {});
+    api.get('/api/trending-recipes').then((r) => setTrending(r.data.slice(0, 3))).catch(() => {});
+  }, []);
+
+  const handleHeroSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) {
+      navigate('/search');
+      return;
+    }
+    navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+  };
+
   return (
-    <div className="hm-home-container">
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark hm-navbar">
-        <div className="container-fluid">
-          <Link to="/" className="navbar-brand">
-            <img src={logo} alt="RannaBhai Logo" className="hm-logo" />
-            RannaBhai
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <Link to="/about-us" className="hm-nav-link">
-                  About Us
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/contact-us" className="hm-nav-link">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
+    <div className="rb-page">
+      <section className="rb-hero">
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', marginBottom: '1rem', fontSize: '0.8rem', fontWeight: 600, color: '#f3b778', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <Sparkles size={15} /> Welcome to RannaBhai Kitchen
         </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header className="hm-hero-section">
-        <h1>Welcome to RannaBhai!</h1>
+        <h1>
+          Cook with joy.
+          <br />
+          Plan every meal effortlessly.
+        </h1>
         <p>
-          Discover, create, and share amazing recipes while managing your health and meal planning needs.
+          Discover handcrafted recipes, generate calorie-smart meal plans with automatic grocery lists,
+          calculate nutrition, locate nearby markets, and challenge yourself with food trivia.
         </p>
-        <Link to="/recipe-of-the-day" className="hm-btn hm-btn-primary hm-btn-lg">
-          Explore Recipe of the Day
-        </Link>
-      </header>
 
-      {/* Features Section */}
-      <section className="hm-features-section container-fluid text-center">
-        <h2>Explore Your Desire</h2>
-        <div className="row justify-content-center">
-          <div className="col-md-3 text-center">
-            <img
-              src="https://images.pexels.com/photos/4050078/pexels-photo-4050078.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt="Trending Recipes"
-              className="hm-feature-image"
-            />
-            <h4>Trending Recipes</h4>
-            <p>Check out the hottest and most loved recipes curated for you.</p>
-            <Link to="/trending-recipe" className="hm-btn hm-btn-outline-primary">
-              View Trending Recipes
-            </Link>
-          </div>
-          <div className="col-md-3 text-center">
-            <img
-              src="https://images.pexels.com/photos/8844888/pexels-photo-8844888.jpeg?auto=compress&cs=tinysrgb&w=600"
-              alt="Meal Planning"
-              className="hm-feature-image"
-            />
-            <h4>Meal Planning</h4>
-            <p>Plan your meals with ease and keep track of your nutrition goals.</p>
-            <Link to="/meal-planning" className="hm-btn hm-btn-outline-success">
-              Start Meal Planning
-            </Link>
-          </div>
-          <div className="col-md-3 text-center">
-            <img
-              src="https://images.pexels.com/photos/8175339/pexels-photo-8175339.jpeg?auto=compress&cs=tinysrgb&w=600"
-              alt="Health Recommendations"
-              className="hm-feature-image"
-            />
-            <h4>Health Recommendations</h4>
-            <p>Get personalized health and nutrition recommendations.</p>
-            <Link to="/health-recommendations" className="hm-btn hm-btn-outline-danger">
-              Learn More
-            </Link>
-          </div>
+        <form
+          onSubmit={handleHeroSearch}
+          style={{ display: 'flex', gap: '0.65rem', marginTop: '1.75rem', maxWidth: '560px', flexWrap: 'wrap' }}
+        >
+          <input
+            type="text"
+            className="rb-input"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search recipes by name (e.g., Biryani, Pasta, Curry)..."
+            style={{ flex: 1, minWidth: '220px', borderRadius: '9999px', paddingInline: '1.2rem' }}
+          />
+          <button type="submit" className="rb-btn rb-btn-primary">
+            <Search size={16} /> Search Recipes
+          </button>
+        </form>
+
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+          <Link to="/recipe" className="rb-btn rb-btn-secondary rb-btn-sm" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', borderColor: 'rgba(255,255,255,0.24)' }}>
+            Browse All Recipes <ArrowRight size={14} />
+          </Link>
+          <Link to="/recipe-submit" className="rb-btn rb-btn-secondary rb-btn-sm" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', borderColor: 'rgba(255,255,255,0.24)' }}>
+            Share Your Recipe
+          </Link>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="hm-testimonials-section bg-light">
-        <div className="container">
-          <h2>What Our Users Say</h2>
-          <div className="row">
-            <div className="col-md-4 text-center">
-              <img
-                src="https://images.pexels.com/photos/2748239/pexels-photo-2748239.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="User 1"
-                className="hm-user-image rounded-circle"
-              />
-              <p>"RannaBhai has completely changed the way I cook and eat!"</p>
-              <h5>- Sarah M.</h5>
+      {featured && (
+        <section className="rb-card" style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.75rem', alignItems: 'center' }}>
+          <img
+            src={featured.image_link || getRecipeFallbackImage(featured.recipe_name)}
+            alt={featured.recipe_name}
+            onError={(e) => {
+              e.currentTarget.src = getRecipeFallbackImage(featured.recipe_name);
+            }}
+            style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+          />
+          <div>
+            <span className="rb-badge rb-badge-gold" style={{ marginBottom: '0.75rem' }}>
+              <Sparkles size={13} /> Recipe of the Day
+            </span>
+            <h2 style={{ fontSize: '2rem', marginBottom: '0.6rem' }}>{featured.recipe_name}</h2>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <span className="rb-badge">{featured.cuisine}</span>
+              <span className="rb-badge rb-badge-sage">{featured.diet_type}</span>
+              <span className="rb-badge rb-badge-accent">{featured.calories} kcal</span>
             </div>
-            <div className="col-md-4 text-center">
-              <img
-                src="https://images.pexels.com/photos/1988686/pexels-photo-1988686.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="User 2"
-                className="hm-user-image rounded-circle"
-              />
-              <p>"The meal planning feature is a game-changer!"</p>
-              <h5>- John D.</h5>
-            </div>
-            <div className="col-md-4 text-center">
-              <img
-                src="https://images.pexels.com/photos/3750717/pexels-photo-3750717.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="User 3"
-                className="hm-user-image rounded-circle"
-              />
-              <p>"Health recommendations are spot-on and super helpful."</p>
-              <h5>- Emily R.</h5>
+            <p style={{ color: 'var(--muted)', fontSize: '0.94rem', marginBottom: '1.25rem' }}>
+              Serves {featured.no_of_servings || 2} · {(featured.ingredient_list || []).length} ingredients · Estimated cost {featured.general_pricing || '$$'}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Link to={`/RecipeDetails/${featured._id}`} className="rb-btn rb-btn-primary">
+                Cook This Recipe <ArrowRight size={15} />
+              </Link>
+              <Link to="/recipe-of-the-day" className="rb-btn rb-btn-secondary">
+                Full Spotlight
+              </Link>
             </div>
           </div>
+        </section>
+      )}
+
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div className="rb-page-header" style={{ marginBottom: '1.25rem' }}>
+          <div>
+            <div className="rb-eyebrow">Everything In One Kitchen</div>
+            <h2 className="rb-title" style={{ fontSize: '1.85rem' }}>Explore RannaBhai Tools</h2>
+          </div>
+        </div>
+
+        <div className="rb-grid-3">
+          {QUICK_CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link key={card.to} to={card.to} className="rb-card rb-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} />
+                  </span>
+                  <span className="rb-badge">{card.badge}</span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', marginTop: '0.25rem' }}>{card.title}</h3>
+                <p style={{ fontSize: '0.88rem', color: 'var(--muted)', flex: 1 }}>{card.desc}</p>
+                <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  Open <ArrowRight size={14} />
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="hm-footer">
-        <div className="container-fluid text-center">
-          <p>
-            &copy; {new Date().getFullYear()} RannaBhai. All rights reserved. Built for food lovers and health enthusiasts.
-          </p>
-        </div>
-      </footer>
+      {trending.length > 0 && (
+        <section>
+          <div className="rb-page-header" style={{ marginBottom: '1.25rem' }}>
+            <div>
+              <div className="rb-eyebrow">Community Favorites</div>
+              <h2 className="rb-title" style={{ fontSize: '1.85rem' }}>Trending Right Now</h2>
+            </div>
+            <Link to="/trending-recipe" className="rb-btn rb-btn-secondary rb-btn-sm">
+              <Flame size={15} /> View Leaderboard
+            </Link>
+          </div>
+          <div className="rb-grid-3">
+            {trending.map((r) => (
+              <Link key={r._id} to={`/RecipeDetails/${r._id}`} className="rb-card rb-card-hover">
+                <img
+                  src={r.image_link || getRecipeFallbackImage(r.recipe_name)}
+                  alt={r.recipe_name}
+                  onError={(e) => {
+                    e.currentTarget.src = getRecipeFallbackImage(r.recipe_name);
+                  }}
+                  className="rb-recipe-img"
+                />
+                <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                  <span className="rb-badge rb-badge-accent">{r.like_count || 0} Likes</span>
+                  <span className="rb-badge">{r.cuisine}</span>
+                </div>
+                <h3 style={{ fontSize: '1.15rem' }}>{r.recipe_name}</h3>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
-
-export default HomePage;

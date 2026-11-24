@@ -1,7 +1,22 @@
 {
+  "name": "rannabhai",
+  "version": "2.0.0",
+  "private": true,
+  "description": "RannaBhai — Full-stack cooking, meal planning, nutrition, and culinary discovery platform",
+  "scripts": {
+    "dev": "npm run dev --prefix backend",
+    "server": "npm run server --prefix backend",
+    "client": "npm start --prefix frontend",
+    "build": "npm run build --prefix frontend"
+  },
   "dependencies": {
-    "jspdf": "^2.5.2"
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2"
   }
 }
-
-//digital signature

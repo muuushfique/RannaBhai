@@ -1,102 +1,86 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./../Customcss/ReportRecipe.css";
+import React, { useEffect, useState } from 'react';
+import { Flag } from 'lucide-react';
+import api from '../services/api';
 
-function AllRecipes() {
+export default function ReportRecipe() {
   const [recipes, setRecipes] = useState([]);
-  const [reporting, setReporting] = useState(null);
-  const [reportMessage, setReportMessage] = useState("");
-  const [submissionMessage, setSubmissionMessage] = useState("");
+  const [selectedId, setSelectedId] = useState('');
+  const [reason, setReason] = useState('');
+  const [status, setStatus] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Fetch all recipes
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const response = await axios.get("http://localhost:1240/api/all-recipes");
-        setRecipes(response.data);
-      } catch (error) {
-        console.error("Error fetching recipes:", error);
-      }
-    };
-
-    fetchRecipes();
+    api
+      .get('/recipes')
+      .then((res) => {
+        const list = res.data || [];
+        setRecipes(list);
+        if (list.length > 0) setSelectedId(list[0]._id);
+      })
+      .catch(() => {});
   }, []);
 
-  // Handle report submission
-  const handleReport = async (recipeId) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedId || !reason.trim()) return;
+    setSubmitting(true);
+    setStatus(null);
     try {
-      if (!reportMessage.trim()) {
-        setSubmissionMessage("Please provide a valid message before submitting.");
-        return;
-      }
-
-      await axios.post(`http://localhost:1240/api/recipe/report/${recipeId}`, {
-        reportMessage,
-      });
-
-      setSubmissionMessage("We will work on this. Please stay with us!");
-      setReporting(null); // Close dropdown
-      setReportMessage(""); // Clear the message
-    } catch (error) {
-      console.error("Error reporting recipe:", error);
-      setSubmissionMessage("Something went wrong. Please try again.");
+      await api.post(`/api/recipe/report/${selectedId}`, { reason: reason.trim() });
+      setStatus({ type: 'success', text: 'Report submitted. Our moderators will review it promptly.' });
+      setReason('');
+    } catch {
+      setStatus({ type: 'error', text: 'Could not submit report right now.' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="rr-all-recipes">
-      <h1 className="rr-title">All Recipes</h1>
-      {submissionMessage && (
-        <div className="rr-submission-message">{submissionMessage}</div>
-      )}
-      <div className="rr-recipe-list">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="rr-recipe-card">
-            <img
-              src={recipe.image_link}
-              alt={recipe.recipe_name}
-              className="rr-recipe-image"
-            />
-            <div className="rr-recipe-content">
-              <h3 className="rr-recipe-name">{recipe.recipe_name}</h3>
-              <p className="rr-recipe-info">
-                <strong>Cuisine:</strong> {recipe.cuisine}
-              </p>
-              <p className="rr-recipe-info">
-                <strong>Diet:</strong> {recipe.diet_type}
-              </p>
-              <button
-                className="rr-btn-report"
-                onClick={() =>
-                  reporting === recipe.id
-                    ? setReporting(null)
-                    : setReporting(recipe.id)
-                }
-              >
-                Report
-              </button>
-              {reporting === recipe.id && (
-                <div className="rr-report-dropdown">
-                  <textarea
-                    value={reportMessage}
-                    onChange={(e) => setReportMessage(e.target.value)}
-                    placeholder="Explain your issue here..."
-                    rows="3"
-                  />
-                  <button
-                    className="rr-btn-submit-report"
-                    onClick={() => handleReport(recipe.id)}
-                  >
-                    Submit
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Quality Moderation</div>
+          <h1 className="rb-title">Report a Recipe Issue</h1>
+          <p className="rb-subtitle">
+            Spotted inaccurate measurements, missing steps, or inappropriate content? Let our kitchen admins know.
+          </p>
+        </div>
       </div>
+
+      {status && (
+        <div className={`rb-alert ${status.type === 'success' ? 'rb-alert-success' : 'rb-alert-error'}`}>
+          {status.text}
+        </div>
+      )}
+
+      <form className="rb-card" style={{ maxWidth: '640px' }} onSubmit={handleSubmit}>
+        <div className="rb-field">
+          <label className="rb-label">Select Recipe</label>
+          <select className="rb-select" value={selectedId} onChange={(e) => setSelectedId(e.target.value)} required>
+            {recipes.map((r) => (
+              <option key={r._id} value={r._id}>
+                {r.recipe_name} ({r.cuisine})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="rb-field">
+          <label className="rb-label">What needs attention?</label>
+          <textarea
+            className="rb-textarea"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Describe the issue clearly..."
+            required
+          />
+        </div>
+
+        <button type="submit" className="rb-btn rb-btn-primary" disabled={submitting}>
+          <Flag size={15} /> {submitting ? 'Submitting...' : 'Submit Report'}
+        </button>
+      </form>
     </div>
   );
 }
-
-export default AllRecipes;

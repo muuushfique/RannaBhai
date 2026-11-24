@@ -1,66 +1,92 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./../../Customcss/RandomRecipe.css";
+import React, { useEffect, useState } from 'react';
+import { Shuffle, Download } from 'lucide-react';
+import api, { exportRecipeToPDF, getRecipeFallbackImage, stripHtml } from '../../services/api';
 
-function RandomRecipe() {
+export default function RandomRecipe() {
   const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const fetchRandomRecipe = async () => {
+  const loadRandom = () => {
     setLoading(true);
-    setError("");
-    try {
-      const apiKey = "dfeee5ed5aef40269b747f33dddac849"; // Replace with your actual API key
-      const response = await axios.get(
-        `https://api.spoonacular.com/recipes/random?apiKey=${apiKey}`
-      );
-      const fetchedRecipe = response.data.recipes[0];
-      setRecipe(fetchedRecipe);
-    } catch (err) {
-      console.error("Error fetching random recipe:", err);
-      setError(
-        err.response?.data?.message ||
-        "Failed to fetch a random recipe. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
+    setError('');
+    api
+      .get('/api/spoonacular/random')
+      .then((res) => setRecipe(res.data))
+      .catch(() => setError('Could not fetch a random recipe right now.'))
+      .finally(() => setLoading(false));
   };
 
+  useEffect(() => {
+    loadRandom();
+  }, []);
+
+  const steps = stripHtml(recipe?.instructions || '')
+    .split(/(?<=\.)\s+/)
+    .filter(Boolean);
+
   return (
-    <div className="random-recipe-container">
-      <h1>Random Recipe Generator</h1>
-      <p>Click the button below to discover a random recipe!</p>
-      <button onClick={fetchRandomRecipe} className="random-recipe-button">
-        Surprise Me!
-      </button>
-      {loading && <p>Loading recipe...</p>}
-      {error && <p className="error-message">{error}</p>}
-      {recipe && (
-        <div className="recipe-details">
-          <h2 className="recipe-title">{recipe.title}</h2>
-          <div className="image-container">
-            <img
-              src={recipe.image || "https://via.placeholder.com/600x400?text=No+Image+Available"}
-              alt={recipe.title}
-              className="recipe-image"
-            />
-          </div>
-          <p><strong>Servings:</strong> {recipe.servings}</p>
-          <p><strong>Preparation Time:</strong> {recipe.readyInMinutes} minutes</p>
-          <h3>Ingredients</h3>
-          <ul>
-            {recipe.extendedIngredients.map((ingredient) => (
-              <li key={ingredient.id}>{ingredient.original}</li>
-            ))}
-          </ul>
-          <h3>Instructions</h3>
-          <p>{recipe.instructions || "No instructions available."}</p>
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Culinary Roulette</div>
+          <h1 className="rb-title">Surprise Me</h1>
+          <p className="rb-subtitle">Roll a spontaneous recipe whenever you need dinner inspiration.</p>
         </div>
-      )}
+        <button type="button" className="rb-btn rb-btn-primary" onClick={loadRandom} disabled={loading}>
+          <Shuffle size={15} /> {loading ? 'Rolling...' : 'Another Surprise'}
+        </button>
+      </div>
+
+      {error && <div className="rb-alert rb-alert-error">{error}</div>}
+
+      {loading ? (
+        <div className="rb-empty">Picking a delicious surprise...</div>
+      ) : recipe ? (
+        <>
+          <div className="rb-card" style={{ marginBottom: '1.75rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'center' }}>
+            <img
+              src={recipe.image || getRecipeFallbackImage(recipe.title)}
+              alt={recipe.title}
+              onError={(e) => {
+                e.currentTarget.src = getRecipeFallbackImage(recipe.title);
+              }}
+              style={{ width: '100%', height: '290px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }}
+            />
+            <div>
+              <span className="rb-badge rb-badge-gold" style={{ marginBottom: '0.75rem' }}>
+                {recipe.source || 'RannaBhai Kitchen'}
+              </span>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.6rem' }}>{recipe.title}</h2>
+              <p style={{ color: 'var(--muted)', marginBottom: '1.25rem' }}>
+                Ready in ~{recipe.readyInMinutes || 30} mins · Serves {recipe.servings || 2}
+              </p>
+              <button type="button" className="rb-btn rb-btn-secondary" onClick={() => exportRecipeToPDF(recipe)}>
+                <Download size={15} /> Export PDF Card
+              </button>
+            </div>
+          </div>
+
+          <div className="rb-grid-2">
+            <div className="rb-card">
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.85rem' }}>Ingredients</h3>
+              <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                {(recipe.extendedIngredients || []).map((ing, i) => (
+                  <li key={`${ing.id || i}-${i}`}>{ing.original}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="rb-card">
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.85rem' }}>Instructions</h3>
+              <ol style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                {steps.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
-
-export default RandomRecipe;

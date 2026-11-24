@@ -1,137 +1,120 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import "./RecipeDetails.css";
+import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search as SearchIcon } from 'lucide-react';
+import api, { getRecipeFallbackImage } from '../services/api';
 
-const Search = () => {
-  // Separate states for each search field
-  const [recipeNameQuery, setRecipeNameQuery] = useState("");
-  const [ingredientQuery, setIngredientQuery] = useState("");
-  const [cuisineQuery, setCuisineQuery] = useState("");
-  const [dietTypeQuery, setDietTypeQuery] = useState("");
-  const [caloriesQuery, setCaloriesQuery] = useState("");
-  const [error, setError] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
+const MODES = [
+  { id: 'name', label: 'Recipe Name', endpoint: '/search-recipe-name', placeholder: 'e.g., Chicken, Biryani, Pasta...' },
+  { id: 'ingredient', label: 'Ingredient', endpoint: '/search-ingredient', placeholder: 'e.g., Garlic, Rice, Tomato...' },
+  { id: 'cuisine', label: 'Cuisine', endpoint: '/search-cuisine', placeholder: 'e.g., Bangladeshi, Italian, Indian...' },
+  { id: 'diet', label: 'Diet Type', endpoint: '/search-diet-type', placeholder: 'e.g., Vegetarian, Keto, Non-Veg...' },
+  { id: 'calories', label: 'Max Calories', endpoint: '/search-calories', placeholder: 'e.g., 500 (returns recipes <= 500 kcal)' },
+];
 
-  // Handle search submission for each field
-  const handleSearchSubmit = async (e, searchType, query) => {
-    e.preventDefault();
+export default function Search() {
+  const [searchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+  const [mode, setMode] = useState('name');
+  const [query, setQuery] = useState(initialQ);
+  const [results, setResults] = useState([]);
+  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    if (query.trim() === "") {
-      setError("Please enter a search term.");
-      return;
-    }
+  const activeMode = MODES.find((m) => m.id === mode) || MODES[0];
 
+  const runSearch = async (qStr, selectedMode = activeMode) => {
+    if (!qStr.trim()) return;
+    setLoading(true);
+    setSearched(true);
     try {
-      const response = await axios.get(`http://localhost:1240/${searchType}`, {
-        params: { q: query },
-      });
-      setError(null);
-      setSearchResults(response.data);
-    } catch (err) {
-      setError(err.response?.data.message || "Error searching for recipe.");
+      const res = await api.get(`${selectedMode.endpoint}?q=${encodeURIComponent(qStr.trim())}`);
+      setResults(res.data || []);
+    } catch {
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (initialQ) {
+      runSearch(initialQ, MODES[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQ]);
+
   return (
-    <div className="faq-container">
-      <h1 className="faq-title">Search Recipes</h1>
-      <div className="faq-list">
-        {/* Search by Recipe Name */}
-        <form
-          onSubmit={(e) =>
-            handleSearchSubmit(e, "search-recipe-name", recipeNameQuery)
-          }
-        >
-          <input
-            type="text"
-            placeholder="Search by recipe name"
-            value={recipeNameQuery}
-            onChange={(e) => setRecipeNameQuery(e.target.value)}
-          />
-          <button type="submit">Search</button>
-        </form>
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Smart Discovery</div>
+          <h1 className="rb-title">Search Recipes</h1>
+          <p className="rb-subtitle">
+            Find dishes by partial name, key ingredient, regional cuisine, diet type, or maximum calorie budget.
+          </p>
+        </div>
+      </div>
 
-        {/* Search by Ingredient */}
-        <form
-          onSubmit={(e) =>
-            handleSearchSubmit(e, "search-ingredient", ingredientQuery)
-          }
-        >
-          <input
-            type="text"
-            placeholder="Search by ingredient"
-            value={ingredientQuery}
-            onChange={(e) => setIngredientQuery(e.target.value)}
-          />
-          <button type="submit">Search</button>
-        </form>
+      <div className="rb-card" style={{ marginBottom: '1.75rem' }}>
+        <div className="rb-tabs">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className={`rb-tab ${mode === m.id ? 'active' : ''}`}
+              onClick={() => setMode(m.id)}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
 
-        {/* Search by Cuisine */}
         <form
-          onSubmit={(e) =>
-            handleSearchSubmit(e, "search-cuisine", cuisineQuery)
-          }
+          onSubmit={(e) => {
+            e.preventDefault();
+            runSearch(query);
+          }}
+          style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}
         >
           <input
-            type="text"
-            placeholder="Search by cuisine"
-            value={cuisineQuery}
-            onChange={(e) => setCuisineQuery(e.target.value)}
+            type={mode === 'calories' ? 'number' : 'text'}
+            className="rb-input"
+            style={{ flex: 1, minWidth: '220px' }}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={activeMode.placeholder}
           />
-          <button type="submit">Search</button>
-        </form>
-
-        {/* Search by Diet Type */}
-        <form
-          onSubmit={(e) =>
-            handleSearchSubmit(e, "search-diet-type", dietTypeQuery)
-          }
-        >
-          <input
-            type="text"
-            placeholder="Search by diet type"
-            value={dietTypeQuery}
-            onChange={(e) => setDietTypeQuery(e.target.value)}
-          />
-          <button type="submit">Search</button>
-        </form>
-
-        {/* Search by Calories */}
-        <form
-          onSubmit={(e) =>
-            handleSearchSubmit(e, "search-calories", caloriesQuery)
-          }
-        >
-          <input
-            type="text"
-            placeholder="Search by calories"
-            value={caloriesQuery}
-            onChange={(e) => setCaloriesQuery(e.target.value)}
-          />
-          <button type="submit">Search</button>
+          <button type="submit" className="rb-btn rb-btn-primary">
+            <SearchIcon size={16} /> Search
+          </button>
         </form>
       </div>
 
-      {/* Error Message */}
-      {error && <p className="error">{error}</p>}
-
-      {/* Display Search Results */}
-      {searchResults.length === 0 ? (
-        <p className="loading">No results found.</p>
+      {loading ? (
+        <div className="rb-empty">Searching the kitchen...</div>
+      ) : searched && results.length === 0 ? (
+        <div className="rb-empty">No recipes matched “{query}”. Try a broader keyword or switch search tabs.</div>
       ) : (
-        <ul>
-          {searchResults.map((recipe) => (
-            <li key={recipe._id}>
-              <Link to={`/RecipeDetails/${recipe._id}`} className="faq-question">
-                {recipe.recipe_name}
-              </Link>
-            </li>
+        <div className="rb-grid-3">
+          {results.map((r) => (
+            <Link key={r._id} to={`/RecipeDetails/${r._id}`} className="rb-card rb-card-hover">
+              <img
+                src={r.image_link || getRecipeFallbackImage(r.recipe_name)}
+                alt={r.recipe_name}
+                onError={(e) => {
+                  e.currentTarget.src = getRecipeFallbackImage(r.recipe_name);
+                }}
+                className="rb-recipe-img"
+              />
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                <span className="rb-badge">{r.cuisine}</span>
+                <span className="rb-badge rb-badge-accent">{r.calories} kcal</span>
+              </div>
+              <h3 style={{ fontSize: '1.18rem' }}>{r.recipe_name}</h3>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
-};
-
-export default Search;
+}

@@ -1,150 +1,157 @@
 import React, { useState } from 'react';
-import '../css/BMI.css';
+import { Link } from 'react-router-dom';
+import { Calculator, ArrowRight } from 'lucide-react';
 
-const BMI = () => {
-  const [height, setHeight] = useState('');
+export default function BMI() {
+  const [unit, setUnit] = useState('metric');
   const [weight, setWeight] = useState('');
-  const [bmi, setBMI] = useState(null);
-  const [heightUnit, setHeightUnit] = useState('cm');
-  const [weightUnit, setWeightUnit] = useState('kg');
-  const [unitConversions, setUnitConversions] = useState({
-    kgToPound: '',
-    poundToKg: '',
-    cmToInch: '',
-    inchToCm: ''
-  });
+  const [height, setHeight] = useState('');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
 
-  const calculateBMI = (e) => {
+  const calculate = (e) => {
     e.preventDefault();
-    let heightInMeters = heightUnit === 'cm' ? height / 100 : height * 0.0254;
-    let weightInKg = weightUnit === 'kg' ? weight : weight * 0.453592;
-    
-    const calculatedBMI = weightInKg / (heightInMeters * heightInMeters);
-    setBMI(calculatedBMI);
-  };
+    setError('');
+    const w = parseFloat(weight);
+    const h = parseFloat(height);
+    if (!w || !h || w <= 0 || h <= 0) {
+      setError('Please enter valid positive numbers for both weight and height.');
+      return;
+    }
 
-  const getBMIStatus = (bmi) => {
-    if (bmi < 18.5) return ['Underweight', 'underweight'];
-    if (bmi < 25) return ['Normal weight', 'normal'];
-    if (bmi < 30) return ['Overweight', 'overweight'];
-    return ['Obese', 'obese'];
-  };
+    let bmi = 0;
+    let heightM = 0;
+    if (unit === 'metric') {
+      heightM = h / 100;
+      bmi = w / (heightM * heightM);
+    } else {
+      heightM = h * 0.0254;
+      bmi = (w / (h * h)) * 703;
+    }
 
-  const handleConversion = (value, type) => {
-    const conversions = {
-      kgToPound: value * 2.20462,
-      poundToKg: value * 0.453592,
-      cmToInch: value * 0.393701,
-      inchToCm: value * 2.54
-    };
+    const rounded = Number(bmi.toFixed(1));
+    let category = 'Healthy Weight';
+    let badge = 'rb-badge-sage';
+    let tip = 'Great balance! Maintain steady energy with wholesome meals from the Meal Planner.';
+    let suggestedCalories = 2000;
 
-    setUnitConversions(prev => ({
-      ...prev,
-      [type]: value ? conversions[type].toFixed(2) : ''
-    }));
+    if (rounded < 18.5) {
+      category = 'Underweight';
+      badge = 'rb-badge-gold';
+      tip = 'Consider nutrient-dense, protein-rich recipes to reach a healthy weight range.';
+      suggestedCalories = 2400;
+    } else if (rounded >= 25 && rounded < 30) {
+      category = 'Overweight';
+      badge = 'rb-badge-accent';
+      tip = 'Focus on high-fiber, balanced meals and modest calorie targets.';
+      suggestedCalories = 1700;
+    } else if (rounded >= 30) {
+      category = 'Obese';
+      badge = 'rb-badge-accent';
+      tip = 'Prioritize whole foods, portion clarity, and check our Health Recommendations guide.';
+      suggestedCalories = 1550;
+    }
+
+    const minHealthyKg = (18.5 * heightM * heightM).toFixed(1);
+    const maxHealthyKg = (24.9 * heightM * heightM).toFixed(1);
+
+    setResult({ bmi: rounded, category, badge, tip, suggestedCalories, minHealthyKg, maxHealthyKg });
   };
 
   return (
-    <div className="container">
-      <h1 className="title">BMI Calculator</h1>
-      
-      <div className="calculator-section">
-        <h2 className="section-title">Calculate Your BMI</h2>
-        <form onSubmit={calculateBMI}>
-          <div className="form-group">
-            <label>Height:</label>
-            <div>
-              <input
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-                placeholder="Enter height"
-              />
-              <select value={heightUnit} onChange={(e) => setHeightUnit(e.target.value)}>
-                <option value="cm">cm</option>
-                <option value="inch">inches</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Weight:</label>
-            <div>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="Enter weight"
-              />
-              <select value={weightUnit} onChange={(e) => setWeightUnit(e.target.value)}>
-                <option value="kg">kg</option>
-                <option value="pound">pounds</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit">Calculate BMI</button>
-        </form>
-
-        {bmi && (
-          <div className="result">
-            <div>Your BMI: {bmi.toFixed(1)}</div>
-            <div className={`bmi-status ${getBMIStatus(bmi)[1]}`}>
-              Status: {getBMIStatus(bmi)[0]}
-            </div>
-          </div>
-        )}
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Wellness Calculator</div>
+          <h1 className="rb-title">BMI & Calorie Guide</h1>
+          <p className="rb-subtitle">
+            Calculate your Body Mass Index in metric or imperial units with tailored daily calorie suggestions.
+          </p>
+        </div>
       </div>
 
-      <div className="conversion-grid">
-        <div className="calculator-section">
-          <h2 className="section-title">Weight Conversion</h2>
-          <div className="form-group">
-            <label>Kilograms to Pounds:</label>
-            <input
-              type="number"
-              placeholder="Enter kg"
-              onChange={(e) => handleConversion(e.target.value, 'kgToPound')}
-            />
-            {unitConversions.kgToPound && <div>= {unitConversions.kgToPound} lbs</div>}
+      <div className="rb-grid-2">
+        <form className="rb-card" onSubmit={calculate}>
+          <div className="rb-tabs">
+            <button type="button" className={`rb-tab ${unit === 'metric' ? 'active' : ''}`} onClick={() => setUnit('metric')}>
+              Metric (kg / cm)
+            </button>
+            <button type="button" className={`rb-tab ${unit === 'imperial' ? 'active' : ''}`} onClick={() => setUnit('imperial')}>
+              Imperial (lbs / in)
+            </button>
           </div>
 
-          <div className="form-group">
-            <label>Pounds to Kilograms:</label>
-            <input
-              type="number"
-              placeholder="Enter lbs"
-              onChange={(e) => handleConversion(e.target.value, 'poundToKg')}
-            />
-            {unitConversions.poundToKg && <div>= {unitConversions.poundToKg} kg</div>}
-          </div>
-        </div>
+          {error && <div className="rb-alert rb-alert-error">{error}</div>}
 
-        <div className="calculator-section">
-          <h2 className="section-title">Height Conversion</h2>
-          <div className="form-group">
-            <label>Centimeters to Inches:</label>
+          <div className="rb-field">
+            <label className="rb-label">Weight ({unit === 'metric' ? 'kg' : 'lbs'})</label>
             <input
               type="number"
-              placeholder="Enter cm"
-              onChange={(e) => handleConversion(e.target.value, 'cmToInch')}
+              step="0.1"
+              className="rb-input"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder={unit === 'metric' ? 'e.g., 70' : 'e.g., 154'}
+              required
             />
-            {unitConversions.cmToInch && <div>= {unitConversions.cmToInch} inches</div>}
           </div>
 
-          <div className="form-group">
-            <label>Inches to Centimeters:</label>
+          <div className="rb-field">
+            <label className="rb-label">Height ({unit === 'metric' ? 'cm' : 'inches'})</label>
             <input
               type="number"
-              placeholder="Enter inches"
-              onChange={(e) => handleConversion(e.target.value, 'inchToCm')}
+              step="0.1"
+              className="rb-input"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              placeholder={unit === 'metric' ? 'e.g., 175' : 'e.g., 69'}
+              required
             />
-            {unitConversions.inchToCm && <div>= {unitConversions.inchToCm} cm</div>}
           </div>
+
+          <button type="submit" className="rb-btn rb-btn-primary">
+            <Calculator size={16} /> Calculate BMI
+          </button>
+        </form>
+
+        <div className="rb-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {!result ? (
+            <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
+              Enter your measurements on the left to see your BMI breakdown, healthy weight range, and suggested meal plan calories.
+            </div>
+          ) : (
+            <div>
+              <span className={`rb-badge ${result.badge}`} style={{ marginBottom: '0.75rem' }}>
+                {result.category}
+              </span>
+              <div className="serif" style={{ fontSize: '3.5rem', fontWeight: 700, lineHeight: 1 }}>
+                {result.bmi}
+              </div>
+              <p style={{ color: 'var(--muted)', marginBlock: '0.9rem 1.25rem' }}>{result.tip}</p>
+
+              <div className="rb-grid-2" style={{ marginBottom: '1.25rem' }}>
+                <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-sm)', background: 'var(--surface-soft)' }}>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>HEALTHY WEIGHT RANGE</div>
+                  <strong>{result.minHealthyKg} – {result.maxHealthyKg} kg</strong>
+                </div>
+                <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-sm)', background: 'var(--surface-soft)' }}>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>SUGGESTED TARGET</div>
+                  <strong>~{result.suggestedCalories} kcal / day</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <Link to="/meal-planning" className="rb-btn rb-btn-primary rb-btn-sm">
+                  Open Meal Planner <ArrowRight size={14} />
+                </Link>
+                <Link to="/healthrecommendations" className="rb-btn rb-btn-secondary rb-btn-sm">
+                  Health Practices
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-};
-
-export default BMI;
+}

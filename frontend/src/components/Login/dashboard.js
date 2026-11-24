@@ -1,91 +1,116 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, Flag, LogIn } from 'lucide-react';
+import api, { getRecipeFallbackImage } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
-function UserDashboard() {
-  const [likedRecipes, setLikedRecipes] = useState([]);
-  const [reportedIssues, setReportedIssues] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
+export default function UserDashboard() {
+  const { user, isLoggedIn } = useAuth();
+  const [liked, setLiked] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem("token"); // Retrieve JWT from localStorage
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+    Promise.all([
+      api.get('/api/user/liked-recipes').catch(() => ({ data: [] })),
+      api.get('/api/user/reported-issues').catch(() => ({ data: [] })),
+    ])
+      .then(([likedRes, repRes]) => {
+        setLiked(likedRes.data || []);
+        setReports(repRes.data || []);
+      })
+      .finally(() => setLoading(false));
+  }, [isLoggedIn]);
 
-        const likedResponse = await axios.get("http://localhost:1240/api/user/liked-recipes", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const reportedResponse = await axios.get("http://localhost:1240/api/user/reported-issues", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setLikedRecipes(likedResponse.data);
-        setReportedIssues(reportedResponse.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setErrorMessage("Failed to load user data. Please try again later.");
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  if (!isLoggedIn) {
+    return (
+      <div className="rb-page">
+        <div className="rb-card" style={{ maxWidth: '520px', margin: '2rem auto', textAlign: 'center', padding: '2.5rem' }}>
+          <h1 className="rb-title" style={{ fontSize: '1.9rem', marginBottom: '0.5rem' }}>Your Kitchen Dashboard</h1>
+          <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>
+            Log in to see your liked recipes and track any recipe issues you’ve reported.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
+            <Link to="/login" className="rb-btn rb-btn-primary">
+              <LogIn size={15} /> Log In
+            </Link>
+            <Link to="/signup" className="rb-btn rb-btn-secondary">
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="user-dashboard">
-      <h1>User Dashboard</h1>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Personal Kitchen</div>
+          <h1 className="rb-title">Welcome, {user.username}</h1>
+          <p className="rb-subtitle">{user.email}</p>
+        </div>
+      </div>
 
-      {/* Liked Recipes Section */}
-      <section className="liked-recipes">
-        <h2>Liked Recipes</h2>
-        {likedRecipes.length > 0 ? (
-          <div className="recipe-list">
-            {likedRecipes.map((recipe) => (
-              <div key={recipe.id} className="recipe-card">
-                <img
-                  src={recipe.image_link}
-                  alt={recipe.recipe_name}
-                  className="recipe-image"
-                />
-                <div className="recipe-content">
-                  <h3 className="recipe-name">{recipe.recipe_name}</h3>
-                  <p>
-                    <strong>Cuisine:</strong> {recipe.cuisine}
-                  </p>
-                </div>
+      {loading ? (
+        <div className="rb-empty">Loading your activity...</div>
+      ) : (
+        <div className="rb-grid-2">
+          <section className="rb-card">
+            <h2 style={{ fontSize: '1.35rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Heart size={18} color="var(--accent)" /> Liked Recipes ({liked.length})
+            </h2>
+            {liked.length === 0 ? (
+              <p style={{ color: 'var(--muted)' }}>
+                You haven’t liked any recipes yet. Visit <Link to="/recipe" style={{ color: 'var(--accent)', fontWeight: 600 }}>All Recipes</Link> to save your favorites!
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {liked.map((r) => (
+                  <Link
+                    key={r._id}
+                    to={`/RecipeDetails/${r._id}`}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.65rem', borderRadius: 'var(--radius-sm)', background: 'var(--surface-soft)' }}
+                  >
+                    <img
+                      src={r.image_link || getRecipeFallbackImage(r.recipe_name)}
+                      alt={r.recipe_name}
+                      style={{ width: 54, height: 54, borderRadius: 8, objectFit: 'cover' }}
+                    />
+                    <div>
+                      <strong>{r.recipe_name}</strong>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{r.cuisine} · {r.calories} kcal</div>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <p>You haven't liked any recipes yet.</p>
-        )}
-      </section>
+            )}
+          </section>
 
-      {/* Reported Issues Section */}
-      <section className="reported-issues">
-        <h2>Reported Issues</h2>
-        {reportedIssues.length > 0 ? (
-          <ul className="report-list">
-            {reportedIssues.map((report, index) => (
-              <li key={index}>
-                <p>
-                  <strong>Recipe:</strong> {report.recipe_name}
-                </p>
-                <p>
-                  <strong>Issue:</strong> {report.reports.message}
-                </p>
-                <p>
-                  <strong>Date:</strong> {new Date(report.reports.date).toLocaleDateString()}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>You haven't reported any issues yet.</p>
-        )}
-      </section>
+          <section className="rb-card">
+            <h2 style={{ fontSize: '1.35rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Flag size={18} color="var(--gold)" /> Reported Issues ({reports.length})
+            </h2>
+            {reports.length === 0 ? (
+              <p style={{ color: 'var(--muted)' }}>No recipe issues reported by your account.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {reports.map((rep) => (
+                  <div key={rep._id} style={{ padding: '0.85rem', borderRadius: 'var(--radius-sm)', background: 'var(--surface-soft)' }}>
+                    <strong>{rep.recipeName}</strong>
+                    <p style={{ fontSize: '0.86rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{rep.reason}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
-
-export default UserDashboard;

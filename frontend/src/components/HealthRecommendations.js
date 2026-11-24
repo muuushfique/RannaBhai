@@ -1,113 +1,65 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { Search, HeartPulse } from 'lucide-react';
+import api from '../services/api';
 
-const HealthRecommendations = () => {
-  const [recommendations, setRecommendations] = useState([]); // State to store health recommendations
-  const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
-  const [loading, setLoading] = useState(true); // State to manage loading
-  const [error, setError] = useState(""); // State to store error messages (if any)
+export default function HealthRecommendations() {
+  const [items, setItems] = useState([]);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Function to fetch recommendations from the backend
-  const axiosFetchData = async () => {
-    try {
-      // Send a GET request to your backend API to fetch the recommendations
-      const response = await axios.get("http://localhost:1240/health"); // Update this URL to your backend endpoint
-      setRecommendations(response.data); // Set the recommendations in state
-      setLoading(false); // Set loading to false after data is fetched
-      setError(""); // Clear error (if any)
-    } catch (err) {
-      console.error("Error fetching recommendations:", err);
-      setError("Failed to load recommendations. Please try again."); // Set an error message
-      setLoading(false); // Set loading to false even if there's an error
-    }
-  };
-
-  // Use useEffect to fetch recommendations on component load and every refresh
   useEffect(() => {
-    axiosFetchData();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+    api
+      .get('/health')
+      .then((res) => setItems(res.data || []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Filter recommendations based on the search term (disease name)
-  const filteredRecommendations = recommendations.filter((rec) =>
-    rec.disease.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = items.filter(
+    (item) =>
+      String(item.disease || '').toLowerCase().includes(query.toLowerCase()) ||
+      String(item.health_practice || '').toLowerCase().includes(query.toLowerCase())
   );
-
-  // Sort recommendations so that matches appear at the top
-  const sortedRecommendations = filteredRecommendations.sort((a, b) => {
-    const aMatch = a.disease.toLowerCase().startsWith(searchTerm.toLowerCase());
-    const bMatch = b.disease.toLowerCase().startsWith(searchTerm.toLowerCase());
-
-    if (aMatch && !bMatch) return -1; // a comes first
-    if (!aMatch && bMatch) return 1; // b comes first
-    return 0; // no change in order
-  });
-
-  // Conditional rendering
-  if (loading) {
-    return (
-      <div className="faq-container">
-        <h1 className="faq-title">Health Recommendations</h1>
-        <div className="faq-list">
-          <p className="loading">Loading recommendations...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="faq-container">
-        <h1 className="faq-title">Health Recommendations</h1>
-        <div className="faq-list">
-          <p className="error">{error}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="faq-container">
-      <h1 className="faq-title">Health Recommendations</h1>
-      <input
-        type="text"
-        placeholder="Search by disease name..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "20px",
-          fontSize: "16px",
-        }}
-      />
-      <div className="faq-list">
-        {sortedRecommendations.length === 0 ? (
-          <p className="loading">No recommendations found for "{searchTerm}".</p>
-        ) : (
-          sortedRecommendations.map((rec, index) => (
-            <div key={index} className="translucent-box" style={{
-              backgroundColor: "rgba(255, 255, 255, 0.7)",
-              padding: "20px",
-              borderRadius: "10px",
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-            }}>
-              <div className="faq-question">
-                {rec.disease}
-              </div>
-              <div className="faq-answer">
-                {rec.health_practice}
-              </div>
-            </div>
-          ))
-        )}
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Wellness Library</div>
+          <h1 className="rb-title">Health Recommendations</h1>
+          <p className="rb-subtitle">
+            Browse {items.length || 59} dietary and lifestyle practices tailored to common health conditions.
+          </p>
+        </div>
+        <div style={{ position: 'relative', minWidth: '250px' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+          <input
+            className="rb-input"
+            style={{ paddingLeft: '2.2rem' }}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter by condition or tip..."
+          />
+        </div>
       </div>
+
+      {loading ? (
+        <div className="rb-empty">Loading health practices...</div>
+      ) : filtered.length === 0 ? (
+        <div className="rb-empty">No matching health recommendations found.</div>
+      ) : (
+        <div className="rb-grid-2">
+          {filtered.map((item) => (
+            <article key={item._id} className="rb-card rb-card-hover">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <HeartPulse size={17} color="var(--sage)" />
+                <h2 style={{ fontSize: '1.2rem' }}>{item.disease}</h2>
+              </div>
+              <p style={{ fontSize: '0.92rem', color: 'var(--muted)' }}>{item.health_practice}</p>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-export default HealthRecommendations;
+}

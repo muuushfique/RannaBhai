@@ -1,314 +1,199 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Calculator, ArrowLeft, Plus, Minus, Search } from 'lucide-react';
+import api, { normalizeNutrition } from '../services/api';
 
-function Ingredients() {
-  const [ingredients, setIngredients] = useState([]);
-  const [filter, setFilter] = useState('both'); 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
-  const [quantities, setQuantities] = useState({});
-  const [nutritionSummary, setNutritionSummary] = useState(null);
-  const [showCalculation, setShowCalculation] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [selectedIngredient, setSelectedIngredient] = useState(null);
+export default function Ingredients() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState('all');
+  const [query, setQuery] = useState('');
+  const [calcMode, setCalcMode] = useState(false);
+  const [basket, setBasket] = useState({});
 
   useEffect(() => {
-    const fetchIngredients = async () => {
-      try {
-        const response = await fetch('http://localhost:1240/Ingredients');
-        if (!response.ok) {
-          throw new Error('Failed to fetch ingredients');
-        }
-        const data = await response.json();
-        setIngredients(data);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-    fetchIngredients();
+    api
+      .get('/Ingredients')
+      .then((res) => setItems(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  //filter
-  const filteredIngredients = ingredients.filter((ingredient) =>
-    ingredient.ingredient.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = items.filter((item) => {
+    const catOk = category === 'all' || String(item.category || '').toLowerCase() === category;
+    const qOk = !query.trim() || String(item.ingredient || '').toLowerCase().includes(query.toLowerCase());
+    return catOk && qOk;
+  });
+
+  const adjustQty = (id, delta) => {
+    setBasket((prev) => {
+      const next = Math.max(0, (prev[id] || 0) + delta);
+      const copy = { ...prev };
+      if (next === 0) delete copy[id];
+      else copy[id] = next;
+      return copy;
+    });
+  };
+
+  const totals = Object.entries(basket).reduce(
+    (acc, [id, qty]) => {
+      const found = items.find((i) => String(i.id) === String(id) || String(i._id) === String(id));
+      if (!found?.nutrition) return acc;
+      const n = normalizeNutrition(found.nutrition);
+      acc.calories += n.calories * qty;
+      acc.protein += n.protein * qty;
+      acc.carbs += n.carbs * qty;
+      acc.fat += n.fat * qty;
+      return acc;
+    },
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-  //add to calculation list
-  const addIngredientToList = (ingredient) => {
-    if (!selectedIngredients.some((item) => item.id === ingredient.id)) {
-      setSelectedIngredients([...selectedIngredients, ingredient]);
-    }
-  };
-
-  // remove from calculation list
-  const removeIngredientFromList = (id) => {
-    setSelectedIngredients(selectedIngredients.filter((item) => item.id !== id));
-    const updatedQuantities = { ...quantities };
-    delete updatedQuantities[id];
-    setQuantities(updatedQuantities);
-  };
-
-  //quantity input
-  const handleQuantityChange = (id, value) => {
-    setQuantities({ ...quantities, [id]: parseFloat(value) || 0 });
-  };
-
-  //Calculate
-  const calculateNutrition = () => {
-    if (selectedIngredients.length === 0) {
-      setErrorMessage('No ingredient added');
-      return;
-    }
-
-    let totalNutrition = {
-      calories: 0,
-      protein: 0,
-      carbohydrates: 0,
-      fats: 0,
-      fiber: 0,
-      calcium: 0,
-      minerals: 0,
-    };
-
-    selectedIngredients.forEach((ingredient) => {
-      const quantity = quantities[ingredient.id] || 0;
-      const factor = quantity / 100; // Nutrition values are per 100 grams
-      totalNutrition.calories += ingredient.nutrition.calories * factor;
-      totalNutrition.protein += ingredient.nutrition.protein * factor;
-      totalNutrition.carbohydrates += ingredient.nutrition.carbohydrates * factor;
-      totalNutrition.fats += ingredient.nutrition.fats * factor;
-      totalNutrition.fiber += ingredient.nutrition.fiber * factor;
-      totalNutrition.calcium += ingredient.nutrition.calcium * factor;
-      totalNutrition.minerals += ingredient.nutrition.minerals * factor;
-    });
-
-    setNutritionSummary(totalNutrition);
-    setErrorMessage('');
-  };
-
-  if (selectedIngredient) {
-    //ingredient Details Interface
-    return (
-      <div className="ingredient-details">
-        <h1>{selectedIngredient.ingredient}</h1>
-        <h3>Nutrition Values (Per 100g)</h3>
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Nutrient</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Calories</td>
-              <td>{selectedIngredient.nutrition.calories} kcal</td>
-            </tr>
-            <tr>
-              <td>Protein</td>
-              <td>{selectedIngredient.nutrition.protein} g</td>
-            </tr>
-            <tr>
-              <td>Carbohydrates</td>
-              <td>{selectedIngredient.nutrition.carbohydrates} g</td>
-            </tr>
-            <tr>
-              <td>Fats</td>
-              <td>{selectedIngredient.nutrition.fats} g</td>
-            </tr>
-            <tr>
-              <td>Fiber</td>
-              <td>{selectedIngredient.nutrition.fiber} g</td>
-            </tr>
-            <tr>
-              <td>Calcium</td>
-              <td>{selectedIngredient.nutrition.calcium} mg</td>
-            </tr>
-            <tr>
-              <td>Minerals</td>
-              <td>{selectedIngredient.nutrition.minerals} mg</td>
-            </tr>
-          </tbody>
-        </table>
+  return (
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Nutrition Lab</div>
+          <h1 className="rb-title">{calcMode ? 'Meal Nutrition Calculator' : 'Ingredients Directory'}</h1>
+          <p className="rb-subtitle">
+            {calcMode
+              ? 'Add ingredient servings to calculate total calories, protein, carbs, and fats.'
+              : 'Explore macro breakdowns for 37+ ingredients and see recipes that use each one.'}
+          </p>
+        </div>
         <button
-          className="btn btn-secondary mt-3"
-          onClick={() => setSelectedIngredient(null)}
+          type="button"
+          className={`rb-btn ${calcMode ? 'rb-btn-secondary' : 'rb-btn-primary'}`}
+          onClick={() => setCalcMode((c) => !c)}
         >
-          Go Back
+          {calcMode ? (
+            <>
+              <ArrowLeft size={15} /> Back to Directory
+            </>
+          ) : (
+            <>
+              <Calculator size={15} /> Open Nutrition Calculator
+            </>
+          )}
         </button>
       </div>
-    );
-  }
 
-  return (
-    <div className="ingredients-page">
-      {!showCalculation && (
-        // Navbar
-        <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-          <div className="container-fluid">
-            <span className="navbar-brand">Ingredients</span>
-            <div className="d-flex align-items-center">
-              <input
-                type="text"
-                placeholder="Search ingredients"
-                className="form-control me-3"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: '300px' }}
-              />
-              <select
-                className="form-select me-3"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                style={{ width: '150px' }}
-              >
-                <option value="both">Show All</option>
-                <option value="veg">Show Veg</option>
-                <option value="non-veg">Show Non-Veg</option>
-              </select>
+      {calcMode && (
+        <div className="rb-card" style={{ marginBottom: '1.5rem', background: 'var(--sidebar)', color: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.35rem', color: '#fff' }}>Selected Basket Totals</h2>
+            {Object.keys(basket).length > 0 && (
               <button
-                className="btn btn-light"
-                onClick={() => setShowCalculation(true)}
+                type="button"
+                className="rb-btn rb-btn-secondary rb-btn-sm"
+                style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', borderColor: 'rgba(255,255,255,0.2)' }}
+                onClick={() => setBasket({})}
               >
-                Calculate Nutrition Values
+                Clear Basket
               </button>
+            )}
+          </div>
+          <div className="rb-grid-4">
+            <div>
+              <div style={{ fontSize: '0.74rem', opacity: 0.7 }}>CALORIES</div>
+              <div style={{ fontSize: '1.65rem', fontWeight: 700, color: '#f3b778' }}>{totals.calories.toFixed(0)} kcal</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.74rem', opacity: 0.7 }}>PROTEIN</div>
+              <div style={{ fontSize: '1.65rem', fontWeight: 700 }}>{totals.protein.toFixed(1)} g</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.74rem', opacity: 0.7 }}>CARBS</div>
+              <div style={{ fontSize: '1.65rem', fontWeight: 700 }}>{totals.carbs.toFixed(1)} g</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.74rem', opacity: 0.7 }}>FAT</div>
+              <div style={{ fontSize: '1.65rem', fontWeight: 700 }}>{totals.fat.toFixed(1)} g</div>
             </div>
           </div>
-        </nav>
+        </div>
       )}
 
-      {/* Main Content */}
-      {!showCalculation ? (
-        <div className="ingredient-card-list d-flex flex-wrap mt-3">
-          {ingredients
-            .filter(
-              (ingredient) =>
-                filter === 'both' || ingredient.category === filter
-            )
-            .filter((ingredient) =>
-              ingredient.ingredient
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            )
-            .map((ingredient) => (
-              <div
-                key={ingredient.id}
-                className="ingredient-card card mb-3"
-                style={{
-                  flex: '1 1 calc(50% - 20px)',
-                  margin: '10px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedIngredient(ingredient)}
-              >
-                <div className="card-body">
-                  <h5 className="card-title">{ingredient.ingredient}</h5>
-                  <p className="card-text">Category: {ingredient.category}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        <div className="rb-tabs" style={{ marginBottom: 0 }}>
+          {[
+            { id: 'all', label: 'All' },
+            { id: 'veg', label: 'Veg' },
+            { id: 'non-veg', label: 'Non-Veg' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`rb-tab ${category === tab.id ? 'active' : ''}`}
+              onClick={() => setCategory(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ position: 'relative', minWidth: '240px', flex: '0 1 320px' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+          <input
+            className="rb-input"
+            style={{ paddingLeft: '2.2rem' }}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter ingredients..."
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="rb-empty">Loading ingredients...</div>
+      ) : (
+        <div className="rb-grid-3">
+          {filtered.map((item) => {
+            const qty = basket[item.id] || 0;
+            return (
+              <div key={item._id} className="rb-card rb-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className={`rb-badge ${String(item.category).toLowerCase() === 'veg' ? 'rb-badge-sage' : 'rb-badge-accent'}`}>
+                    {item.category}
+                  </span>
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--accent)' }}>
+                    {item.nutrition?.calories ?? 0} kcal
+                  </span>
+                </div>
+
+                <Link to={`/ingredient/${item.id}`}>
+                  <h3 style={{ fontSize: '1.18rem' }}>{item.ingredient}</h3>
+                </Link>
+
+                <div style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                  {(() => {
+                    const n = normalizeNutrition(item.nutrition);
+                    return `Protein ${n.protein}g · Carbs ${n.carbs}g · Fat ${n.fat}g`;
+                  })()}
+                </div>
+
+                <div style={{ marginTop: 'auto', paddingTop: '0.65rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {calcMode ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <button type="button" className="rb-btn rb-btn-secondary rb-btn-sm" onClick={() => adjustQty(item.id, -1)}>
+                        <Minus size={13} />
+                      </button>
+                      <strong>{qty}x</strong>
+                      <button type="button" className="rb-btn rb-btn-primary rb-btn-sm" onClick={() => adjustQty(item.id, 1)}>
+                        <Plus size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <Link to={`/ingredient/${item.id}`} className="rb-btn rb-btn-secondary rb-btn-sm">
+                      Nutrition & Recipes →
+                    </Link>
+                  )}
                 </div>
               </div>
-            ))}
-        </div>
-      ) : (
-        <div className="mt-4">
-          <input
-            type="text"
-            placeholder="Search ingredients"
-            className="form-control mb-3"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          {/* Show only when searched */}
-          {searchTerm && (
-            <div className="ingredient-search-results">
-              {filteredIngredients.map((ingredient) => (
-                <div
-                  key={ingredient.id}
-                  className="d-flex align-items-center mb-3"
-                >
-                  <p className="mb-0 me-3">{ingredient.ingredient}</p>
-                  <button
-                    className="btn btn-success"
-                    onClick={() => addIngredientToList(ingredient)}
-                  >
-                    Add (+)
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {selectedIngredients.length > 0 && (
-            <div className="selected-ingredients-list mt-4">
-              <h2>Selected Ingredients</h2>
-              {selectedIngredients.map((ingredient) => (
-                <div key={ingredient.id} className="mb-3">
-                  <div className="d-flex align-items-center justify-content-between">
-                    <p>{ingredient.ingredient}</p>
-                    <button
-                      className="btn btn-danger ms-3"
-                      onClick={() => removeIngredientFromList(ingredient.id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <input
-                    type="number"
-                    placeholder="Quantity (grams)"
-                    className="form-control"
-                    value={quantities[ingredient.id] || ''}
-                    onChange={(e) =>
-                      handleQuantityChange(ingredient.id, e.target.value)
-                    }
-                  />
-                </div>
-              ))}
-              <button
-                className="btn btn-primary mt-3"
-                onClick={calculateNutrition}
-              >
-                Submit
-              </button>
-            </div>
-          )}
-
-          {errorMessage && (
-            <p className="text-danger mt-3">{errorMessage}</p>
-          )}
-
-          {nutritionSummary && (
-            <div className="nutrition-summary mt-5">
-              <h3>Total Nutrition</h3>
-              <p>
-                <strong>Calories:</strong> {nutritionSummary.calories.toFixed(2)}{' '}
-                kcal
-              </p>
-              <p>
-                <strong>Protein:</strong> {nutritionSummary.protein.toFixed(2)} g
-              </p>
-              <p>
-                <strong>Carbohydrates:</strong>{' '}
-                {nutritionSummary.carbohydrates.toFixed(2)} g
-              </p>
-              <p>
-                <strong>Fats:</strong> {nutritionSummary.fats.toFixed(2)} g
-              </p>
-              <p>
-                <strong>Fiber:</strong> {nutritionSummary.fiber.toFixed(2)} g
-              </p>
-              <p>
-                <strong>Calcium:</strong> {nutritionSummary.calcium.toFixed(2)}{' '}
-                mg
-              </p>
-              <p>
-                <strong>Minerals:</strong> {nutritionSummary.minerals.toFixed(2)}{' '}
-                mg
-              </p>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-
-export default Ingredients;

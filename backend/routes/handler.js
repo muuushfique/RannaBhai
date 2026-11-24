@@ -1,641 +1,130 @@
 const express = require('express');
-
 const router = express.Router();
-const { Recipe, Ingredient } = require('../models/schemas'); // Import Recipe model
+const mongoose = require('mongoose');
+const axios = require('axios');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-// Get all recipes
-router.get('/recipes', async (req, res) => {
-    try {
-        const recipes = await Recipe.find(); // Fetch all recipes
-        res.json(recipes); // Send the recipes as a response
-    } catch (error) {
-        console.error('Error fetching recipes:', error);
-        res.status(500).json({ message: 'Error fetching recipes' });
-    }
-});
+const {
+  User,
+  Contact,
+  Recipe,
+  CookingGlossary,
+  Recommendations,
+  GroceryStore,
+  About,
+  Ingredient,
+} = require('../models/schemas');
 
-// Get a single recipe by ID
-router.get('/recipes/:id', async (req, res) => {
-    try {
-        const recipe = await Recipe.findOne({ id: req.params.id }); // Find recipe by ID
-        if (recipe) {
-            res.json(recipe); // Send the recipe as a response
-        } else {
-            res.status(404).json({ message: 'Recipe not found' });
-        }
-    } catch (error) {
-        console.error('Error fetching recipe:', error);
-        res.status(500).json({ message: 'Error fetching recipe' });
-    }
-});
+const {
+  add_new_faq,
+  get_all_faq,
+  delete_faq,
+  update_faq,
+  add_new_meal,
+  get_all_meals,
+  delete_meal,
+  update_meal,
+} = require('../controllers/controller');
 
-// Add a new recipe
-router.post('/recipes', async (req, res) => {
-    const {
-        id,
-        recipe_name,
-        no_of_servings,
-        ingredient_list,
-        cuisine,
-        diet_type,
-        general_pricing,
-        recipe_procedure,
-        image_link,
-        calories,
-        review_list,
-        like_count,
-        dislike_count,
-    } = req.body;
+const JWT_SECRET = process.env.JWT_SECRET || 'rannabhai_jwt_secret_key';
 
-    const newRecipe = new Recipe({
-        id,
-        recipe_name,
-        no_of_servings,
-        ingredient_list,
-        cuisine,
-        diet_type,
-        general_pricing,
-        recipe_procedure,
-        image_link,
-        calories,
-        review_list,
-        like_count,
-        dislike_count,
-    });
+function escapeRegex(str = '') {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-    try {
-        const savedRecipe = await newRecipe.save(); // Save to the database
-        res.status(201).json({ message: 'Recipe added successfully!', recipe: savedRecipe });
-    } catch (error) {
-        console.error('Error adding recipe:', error);
-        res.status(500).json({ message: 'Error adding recipe' });
-    }
-});
-
-// Update a recipe by ID
-router.put('/recipes/:id', async (req, res) => {
-    try {
-        const recipe = await Recipe.findOne({ id: req.params.id }); // Find recipe by ID
-        if (recipe) {
-            const updatedFields = req.body; // Get updated fields from the request
-            Object.assign(recipe, updatedFields); // Update the recipe
-            const updatedRecipe = await recipe.save(); // Save the updated recipe
-            res.json({ message: 'Recipe updated successfully!', recipe: updatedRecipe });
-        } else {
-            res.status(404).json({ message: 'Recipe not found' });
-        }
-    } catch (error) {
-        console.error('Error updating recipe:', error);
-        res.status(500).json({ message: 'Error updating recipe' });
-    }
-});
-
-// Delete a recipe by ID
-router.delete('/recipes/:id', async (req, res) => {
-    try {
-        const result = await Recipe.deleteOne({ id: req.params.id }); // Delete recipe by ID
-        if (result.deletedCount > 0) {
-            res.json({ message: 'Recipe deleted successfully!' });
-        } else {
-            res.status(404).json({ message: 'Recipe not found' });
-        }
-    } catch (error) {
-        console.error('Error deleting recipe:', error);
-        res.status(500).json({ message: 'Error deleting recipe' });
-    }
-});
-
-//ammarah
-router.post('/recipe/:id/reviews', async (req, res) => {
-    try {
-        const recipe = await Recipe.findById(req.params.id);
-        if (!recipe) {
-            return res.status(404).json({ message: 'Recipe not found' });
-        }
-        recipe.review_list.push(req.body); // Add the new review to the review_list
-        await recipe.save(); // Save the updated recipe
-        res.status(201).json(req.body); // Return the new review
-    } catch (error) {
-        console.error('Error posting review:', error);
-        res.status(500).json({ message: 'Error posting review' });
-    }
-});
-
-// Search by recipe name
-router.get('/search-recipe-name', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ recipe_name: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-  
-  // Search by ingredient
-  router.get('/search-ingredient', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ ingredient_list: { $elemMatch: { $regex: new RegExp(`^${query}$`, 'i') } } });
-    res.json(recipes);
-  });
-  
-  // Search by cuisine
-  router.get('/search-cuisine', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ cuisine: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-  
-  // Search by diet type
-  router.get('/search-diet-type', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ diet_type: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-// Search by calories
-router.get('/search-calories', async (req, res) => {
-    const query = req.query.q;
-    try {
-      const recipes = await Recipe.find({ calories: query }); // Use exact match for calories
-      res.json(recipes);
-    } catch (error) {
-      console.error('Error searching by calories:', error);
-      res.status(500).json({ message: 'Error searching by calories' });
-    }
-  });
-  //ammarah
-
-router.post('/recipes/:id/like', async (req, res) => {
-    
-    const recipeId = req.params.id;
-    await Recipe.updateOne({ 'id': recipeId }, { $inc: { like_count: 1 } });
-    res.status(200).send('Like updated');
-  });
-const schemas = require('../models/schemas')
-const controller = require('../controllers/controller')
-
-const User = schemas.User;
-
-//for contact us page
-router.post('/contact', async (req, res) => {
-    const {email, website, message} = req.body
-    
-    const contactData = {email: email, website: website, message:message}
-    const newContact = new schemas.Contact(contactData)
-    const saveContact = await newContact.save()
-    if (saveContact) {
-        res.send('Message sent. Thank you.')
-    }
-    else{
-        res.send('Failed to send message')
-    }
-    res.end()
-})
-
-router.get('/users', (req, res) => {
-    const userData = 
-    [
-        {
-            "id": 1,
-            "name": "Leanne Graham",
-            "website": "yahoo.com",
-          },
-          {
-            "id": 2,
-            "name": "Ervin Howell",
-            "website": "youtube.com",
-          },
-          {
-            "id": 3,
-            "name": "Clementine Bauch",
-            "website": "google.com",
-          },
-    ]
-    res.send(userData)})
-
-router.post('/recipes/:id/dislike', async (req, res) => {
-    
-
-    const recipeId = req.params.id;
-    await Recipe.updateOne({ 'id': recipeId }, { $inc: { dislike_count: 1 } });
-    res.status(200).send('Dislike updated');
-  });
-
-  router.get('/health', async (req, res) => {
-    try {
-        // Fetch all recommendations from the HealthRecom collection
-        const recommendations = await schemas.Recommendations.find();
-        
-        // Send the recommendations as a response
-        res.json(recommendations);
-    } catch (error) {
-        console.error('Error fetching health recommendations:', error);
-        res.status(500).json({ message: 'Failed to fetch health recommendations.' });
-    }
-});
-
-router.get('/recipe/:id', async (req, res) => {
-    try {
-        const recipe = await Recipe.findById(req.params.id); // Fetch the recipe by ID
-        if (!recipe) {
-            return res.status(404).json({ message: 'Recipe not found' });
-        }
-        res.json(recipe); // Return the recipe if found
-    } catch (error) {
-        console.error('Error fetching recipe:', error);
-        res.status(500).json({ message: 'Error fetching recipe' });
-    }
-});
-
-router.post('/recipe/:id/reviews', async (req, res) => {
-    try {
-        const recipe = await Recipe.findById(req.params.id);
-        if (!recipe) {
-            return res.status(404).json({ message: 'Recipe not found' });
-        }
-        recipe.review_list.push(req.body); // Add the new review to the review_list
-        await recipe.save(); // Save the updated recipe
-        res.status(201).json(req.body); // Return the new review
-    } catch (error) {
-        console.error('Error posting review:', error);
-        res.status(500).json({ message: 'Error posting review' });
-    }
-});
-router.get('/glossary', async (req, res) => {
-  try {
-    const glossaryTerms = await schemas.CookingGlossary.find(); // Fetch all glossary terms
-    res.json(glossaryTerms); // Send the glossary terms as a response
-  } catch (error) {
-    console.error('Error fetching glossary terms:', error);
-    res.status(500).json({ message})
+async function findRecipeByParam(param) {
+  if (!param) return null;
+  if (mongoose.Types.ObjectId.isValid(param) && String(param).length === 24) {
+    const byObjId = await Recipe.findById(param);
+    if (byObjId) return byObjId;
   }
-})
-
-
-// Search by recipe name
-router.get('/search-recipe-name', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ recipe_name: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-  
-  // Search by ingredient
-  router.get('/search-ingredient', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ ingredient_list: { $elemMatch: { $regex: new RegExp(`^${query}$`, 'i') } } });
-    res.json(recipes);
-  });
-  
-  // Search by cuisine
-  router.get('/search-cuisine', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ cuisine: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-  
-  // Search by diet type
-  router.get('/search-diet-type', async (req, res) => {
-    const query = req.query.q;
-    const recipes = await Recipe.find({ diet_type: { $regex: new RegExp(`^${query}$`, 'i') } });
-    res.json(recipes);
-  });
-// Search by calories
-router.get('/search-calories', async (req, res) => {
-    const query = req.query.q;
-    try {
-      const recipes = await Recipe.find({ calories: query }); // Use exact match for calories
-      res.json(recipes);
-    } catch (error) {
-      console.error('Error searching by calories:', error);
-      res.status(500).json({ message: 'Error searching by calories' });
-    }
-  });
-//TrendingRecipe
-router.get('/api/trending-recipes', async (req, res) => {
-  try {
-      // Use the Recipe model directly
-      const recipes = await Recipe.find({})
-          .sort({ like_count: -1 }) // Sort by like_count in descending order
-          .limit(3); // Fetch top 3 recipes
-
-      res.status(200).json(recipes);
-  } catch (error) {
-      console.error("Error fetching trending recipes:", error);
-      res.status(500).send("Internal Server Error");
+  const num = Number(param);
+  if (!Number.isNaN(num)) {
+    return Recipe.findOne({ id: num });
   }
-});
+  return null;
+}
 
-router.put('/api/recipe/vote/:id', async (req, res) => {
-  try {
-    const { id } = req.params; // Recipe ID from the URL
-    const { like_count, dislike_count } = req.body; // Updated counts from the frontend
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const toRad = (v) => (v * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-    // Convert the `id` to an integer (int32)
-    const intId = parseInt(id, 10);
-
-    // Update the recipe document by its `id` field
-    const updatedRecipe = await schemas.Recipe.findOneAndUpdate(
-      { id: intId }, // Match by `id` field as an integer
-      { $set: { like_count, dislike_count } }, // Set the updated counts
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedRecipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    res.json(updatedRecipe); // Return the updated recipe
-  } catch (error) {
-    console.error("Error updating recipe:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
-// Fetch all recipes
-router.get('/api/all-recipes', async (req, res) => {
-  try {
-    const recipes = await Recipe.find({});
-    res.status(200).json(recipes);
-  } catch (error) {
-    console.error("Error fetching all recipes:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-// Submit a report for a recipe
-router.post('/api/recipe/report/:id', async (req, res) => {
-  try {
-    const { id } = req.params; // Recipe ID from the URL
-    const { reportMessage } = req.body; // Report message from the frontend
-
-    if (!reportMessage) {
-      return res.status(400).json({ message: "Report message is required." });
-    }
-
-    const intId = parseInt(id, 10); // Convert ID to an integer
-
-    const updatedRecipe = await schemas.Recipe.findOneAndUpdate(
-      { id: intId },
-      { $push: { reports: { message: reportMessage, date: new Date() } } }, // Add the report
-      { new: true }
-    );
-
-    if (!updatedRecipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    res.json({ message: "Report submitted successfully." });
-  } catch (error) {
-    console.error("Error submitting report:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-// Signup route
-router.post("/api/signup", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
-    });
-
-    await newUser.save();
-    res.status(201).json({ message: "User created successfully" });
-  } catch (error) {
-    console.error("Error during signup:", error);
-    res.status(500).json({ message: "Error creating user" });
-  }
-});
-
-// Login route
-router.post("/api/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, "your_secret_key", { expiresIn: "1h" });
-    res.json({ token });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ message: "Error logging in" });
-  }
-});
-
-// Middleware to verify token
 function authenticateToken(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, "your_secret_key", (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Authentication required' });
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+    req.user = decoded;
     next();
   });
 }
 
-router.get("/api/user/dashboard", authenticateToken, async (req, res) => {
-  const userId = req.user.userId;
-  // Fetch user-specific data
-  const likedRecipes = await Recipe.find({ liked_by: userId });
-  const reportedIssues = await Recipe.aggregate([
-    { $unwind: "$reports" },
-    { $match: { "reports.user_id": userId } },
-  ]);
-
-  res.json({ likedRecipes, reportedIssues });
-});
-
-// Fetch liked recipes for a logged-in user
-router.get('/api/user/liked-recipes', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.userId; // Extract user ID from JWT token
-
-    const likedRecipes = await Recipe.find({ liked_by: userId }); // Recipes liked by the user
-    res.status(200).json(likedRecipes);
-  } catch (error) {
-    console.error("Error fetching liked recipes:", error);
-    res.status(500).json({ message: "Failed to fetch liked recipes" });
+function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (!err) req.user = decoded;
+    });
   }
-});
+  next();
+}
 
-// Fetch reported issues for a logged-in user
-router.get('/api/user/reported-issues', authenticateToken, async (req, res) => {
+// ==========================================
+// RECIPES
+// ==========================================
+router.get(['/recipes', '/api/all-recipes'], async (req, res) => {
   try {
-    const userId = req.user.userId; // Extract user ID from JWT token
-
-    const reportedIssues = await Recipe.aggregate([
-      { $unwind: "$reports" }, // Deconstruct the reports array
-      { $match: { "reports.user_id": userId } }, // Match reports by user ID
-      {
-        $project: {
-          recipe_name: 1,
-          "reports.message": 1,
-          "reports.date": 1,
-        },
-      },
-    ]);
-
-    res.status(200).json(reportedIssues);
-  } catch (error) {
-    console.error("Error fetching reported issues:", error);
-    res.status(500).json({ message: "Failed to fetch reported issues" });
-  }
-});
-
-//Admin Panel
-// Fetch all recipes
-router.get('/api/admin/recipes', authenticateToken, async (req, res) => {
-  try {
-    const recipes = await Recipe.find({});
-    res.status(200).json(recipes);
-  } catch (error) {
-    console.error("Error fetching recipes:", error);
-    res.status(500).json({ message: "Error fetching recipes" });
-  }
-});
-
-// Fetch all reports
-router.get('/api/admin/reports', authenticateToken, async (req, res) => {
-  try {
-    const reports = await Recipe.aggregate([
-      { $unwind: "$reports" },
-      {
-        $project: {
-          recipe_name: 1,
-          "reports.message": 1,
-          "reports.date": 1,
-          "reports.user_id": 1,
-        },
-      },
-    ]);
-    res.status(200).json(reports);
-  } catch (error) {
-    console.error("Error fetching reports:", error);
-    res.status(500).json({ message: "Error fetching reports" });
-  }
-});
-
-// Delete a recipe by ID
-router.delete('/api/admin/recipe/:id', authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedRecipe = await Recipe.findByIdAndDelete(id);
-
-    if (!deletedRecipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    res.status(200).json({ message: "Recipe deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting recipe:", error);
-    res.status(500).json({ message: "Error deleting recipe" });
-  }
-});
-
-//for spoonacular
-router.get("/api/recipe-search", async (req, res) => {
-  const { ingredients } = req.query; // Ingredients passed in the query string
-  const apiKey = process.env.SPOONACULAR_API_KEY;
-
-  try {
-    const response = await axios.get(
-      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=10&apiKey=${apiKey}`
-    );
-    res.json(response.data);
-  } catch (error) {
-    console.error("Error fetching recipes:", error);
-    res.status(500).json({ message: "Failed to fetch recipes" });
-  }
-});
-
-
-//Ipsit
-// Route to fetch nearby grocery stores
-router.get("/stores", async (req, res) => {
-  const { latitude, longitude, radius } = req.query;
-
-  const lat = parseFloat(latitude);
-  const lon = parseFloat(longitude);
-  const rad = parseFloat(radius);
-
-  if (!lat || !lon || !rad) {
-    return res.status(400).json({ error: "Invalid or missing query parameters." });
-  }
-
-  const stores = await schemas.GroceryStore.find();
-  
-  res.json(stores);
-});
-
-//recipe of the day
-// Function to get a random recipe
-const getRandomRecipe = async () => {
-  const recipeCount = await Recipe.countDocuments();
-  const randomIndex = Math.floor(Math.random() * recipeCount);
-  console.log(randomIndex)
-  const recipe = await Recipe.findOne().skip(randomIndex); // Randomly select a recipe
-  return recipe;
-};
-
-// Route to get the "Recipe of the Day"(Ipsit)
-router.get("/recipe-of-the-day", async (req, res) => {
-  try {
-    console.log("Somossa ache")
-    const today = new Date();
-    console.log(today)
-    var currentDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-    console.log(currentDate)
-  const seed = currentDate.getFullYear() * 10000 +
-    (currentDate.getMonth() + 1) * 100 +
-    currentDate.getDate();
-    const allRecipe = await Recipe.find({});
-    // console.log(allRecipe)
-  const recipeIndex = seed % allRecipe.length;
-  const recipe = allRecipe[recipeIndex];
-
-  console.log(recipe)
-  console.log("Ipsit")
-    res.json(recipe);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch Recipe of the Day" });
-  }
-});  //end
-
-//faq and meal-planning
-router.post('/add-new-faq', controller.add_new_faq)
-router.get('/faqs', controller.get_all_faq);
-router.delete('/delete-faq/:id', controller.delete_faq);
-router.put('/update-faq/:id', controller.update_faq);
-router.post('/add-new-meal', controller.add_new_meal);
-router.get('/meals', controller.get_all_meals);
-router.delete('/delete-meal/:id', controller.delete_meal);
-router.put('/update-meal/:id', controller.update_meal);
-
-
-// Get About Us content
-router.get('/about-us', async (req, res) => {
-  try {
-    const aboutContent = await schemas.About.findOne();
-    res.status(200).json(aboutContent);
+    const recipes = await Recipe.find().sort({ createdAt: -1, id: 1 });
+    res.json(recipes);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch About Us content.' });
+    res.status(500).json({ message: 'Failed to fetch recipes', error: err.message });
   }
 });
 
+router.get(['/recipe/:id', '/recipes/:id'], async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+    res.json(recipe);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch recipe', error: err.message });
+  }
+});
 
-// Submit a new recipe
+router.get('/recipe-of-the-day', async (req, res) => {
+  try {
+    const allRecipes = await Recipe.find().sort({ id: 1 });
+    if (!allRecipes.length) {
+      return res.status(404).json({ message: 'No recipes available yet.' });
+    }
+    const now = new Date();
+    const daySeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    const index = daySeed % allRecipes.length;
+    res.json(allRecipes[index]);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch recipe of the day', error: err.message });
+  }
+});
+
+router.get('/api/trending-recipes', async (req, res) => {
+  try {
+    const trending = await Recipe.find().sort({ like_count: -1, dislike_count: 1 }).limit(6);
+    res.json(trending);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch trending recipes', error: err.message });
+  }
+});
+
 router.post('/submit-recipe', async (req, res) => {
   try {
     const {
@@ -650,164 +139,649 @@ router.post('/submit-recipe', async (req, res) => {
       calories,
     } = req.body;
 
-    const newRecipe = new Recipe({
-      recipe_name,
-      no_of_servings,
-      ingredient_list: ingredient_list.split(',').map((item) => item.trim()),
-      cuisine,
-      diet_type,
-      general_pricing,
-      recipe_procedure,
-      image_link,
-      calories,
-      review_list: [], // Empty initially; will be updated by users later.
+    if (!recipe_name?.trim()) {
+      return res.status(400).json({ message: 'Recipe name is required.' });
+    }
+
+    const latest = await Recipe.findOne().sort({ id: -1 }).select('id');
+    const nextId = (latest?.id || 0) + 1;
+
+    const normalizedIngredients = Array.isArray(ingredient_list)
+      ? ingredient_list.map((s) => String(s).trim()).filter(Boolean)
+      : String(ingredient_list || '')
+          .split(/[\n,]/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+    const normalizedSteps = Array.isArray(recipe_procedure)
+      ? recipe_procedure.map((s) => String(s).trim()).filter(Boolean)
+      : String(recipe_procedure || '')
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+    const created = await Recipe.create({
+      id: nextId,
+      recipe_name: recipe_name.trim(),
+      no_of_servings: Number(no_of_servings) || 2,
+      ingredient_list: normalizedIngredients,
+      cuisine: cuisine?.trim() || 'Bangladeshi',
+      diet_type: diet_type?.trim() || 'Regular',
+      general_pricing: general_pricing?.trim() || '$$',
+      recipe_procedure: normalizedSteps,
+      image_link: image_link?.trim() || '',
+      calories: Number(calories) || 350,
+      like_count: 0,
+      dislike_count: 0,
     });
 
-    await newRecipe.save();
-    res.status(201).send('Recipe submitted successfully');
-  } catch (error) {
-    console.error('Error submitting recipe:', error);
-    res.status(500).send('Failed to submit recipe');
+    res.status(201).json({ message: 'Recipe submitted successfully!', recipe: created });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to submit recipe', error: err.message });
   }
 });
-//End of Ipsit's code
 
-router.get('/Ingredients', async (req, res) => {
-    try {
-        console.log('hit')
-        const { search, category } = req.query; // Extract query parameters for filtering
+router.post('/recipes/:id/like', optionalAuth, async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
 
-        // Query for filtering
-        const filter = {};
-        if (search) {
-            filter.ingredient = { $regex: search, $options: 'i' }; // Case-insensitive search
+    const delta = req.body?.delta === -1 ? -1 : 1;
+    recipe.like_count = Math.max(0, (recipe.like_count || 0) + delta);
+
+    if (req.user?.userId) {
+      const uid = req.user.userId;
+      if (delta === 1) {
+        if (!recipe.liked_by.some((x) => String(x) === String(uid))) {
+          recipe.liked_by.push(uid);
         }
-        if (category && category !== 'both') {
-            filter.category = category; // Filter by category if provided
-        }
-
-        const ingredients = await Ingredient.find(filter); // Fetch ingredients with filters
-        res.json(ingredients);
-    } catch (error) {
-        console.error('Error fetching ingredients:', error);
-        res.status(500).json({ message: 'Error fetching Ingredients' });
+      } else {
+        recipe.liked_by = recipe.liked_by.filter((x) => String(x) !== String(uid));
+      }
     }
-});
 
-// Get a single ingredient by ID
-router.get('/Ingredients/:id', async (req, res) => {
-    try {
-        const ingredient = await Ingredient.findOne({ id: req.params.id }); // Find ingredient by ID
-        if (ingredient) {
-            res.json(ingredient); // Send the ingredient as a response
-        } else {
-            res.status(404).json({ message: 'Ingredient not found' });
-        }
-    } catch (error) {
-        console.error('Error fetching ingredient:', error);
-        res.status(500).json({ message: 'Error fetching ingredient' });
-    }
-});
-
-// Add a new ingredient
-router.post('/Ingredients', async (req, res) => {
-    const { id, ingredient, nutrition, category } = req.body;
-
-    const newIngredient = new Ingredient({
-        id,
-        ingredient,
-        nutrition,
-        category,
+    await recipe.save();
+    res.json({
+      like_count: recipe.like_count,
+      dislike_count: recipe.dislike_count,
+      recipe,
     });
-
-    try {
-        const savedIngredient = await newIngredient.save(); // Save to the database
-        res.status(201).json({ message: 'Ingredient added successfully!', ingredient: savedIngredient });
-    } catch (error) {
-        console.error('Error adding ingredient:', error);
-        res.status(500).json({ message: 'Error adding ingredient' });
-    }
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update like', error: err.message });
+  }
 });
 
-// Update an ingredient by ID
-router.put('/Ingredients/:id', async (req, res) => {
-    try {
-        const ingredient = await Ingredient.findOne({ id: req.params.id }); // Find ingredient by ID
-        if (ingredient) {
-            const updatedFields = req.body; // Get updated fields from the request
-            Object.assign(ingredient, updatedFields); // Update the ingredient
-            const updatedIngredient = await ingredient.save(); // Save the updated ingredient
-            res.json({ message: 'Ingredient updated successfully!', ingredient: updatedIngredient });
-        } else {
-            res.status(404).json({ message: 'Ingredient not found' });
-        }
-    } catch (error) {
-        console.error('Error updating ingredient:', error);
-        res.status(500).json({ message: 'Error updating ingredient' });
-    }
+router.post('/recipes/:id/dislike', optionalAuth, async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+
+    const delta = req.body?.delta === -1 ? -1 : 1;
+    recipe.dislike_count = Math.max(0, (recipe.dislike_count || 0) + delta);
+    await recipe.save();
+
+    res.json({
+      like_count: recipe.like_count,
+      dislike_count: recipe.dislike_count,
+      recipe,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update dislike', error: err.message });
+  }
 });
 
-// Delete an ingredient by ID
-router.delete('/Ingredients/:id', async (req, res) => {
-    try {
-        const result = await Ingredient.deleteOne({ id: req.params.id }); // Delete ingredient by ID
-        if (result.deletedCount > 0) {
-            res.json({ message: 'Ingredient deleted successfully!' });
-        } else {
-            res.status(404).json({ message: 'Ingredient not found' });
-        }
-    } catch (error) {
-        console.error('Error deleting ingredient:', error);
-        res.status(500).json({ message: 'Error deleting ingredient' });
+router.put('/api/recipe/vote/:id', optionalAuth, async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+
+    const { type } = req.body;
+    if (type === 'like') {
+      recipe.like_count = (recipe.like_count || 0) + 1;
+      if (req.user?.userId && !recipe.liked_by.some((x) => String(x) === String(req.user.userId))) {
+        recipe.liked_by.push(req.user.userId);
+      }
+    } else if (type === 'dislike') {
+      recipe.dislike_count = (recipe.dislike_count || 0) + 1;
+    } else {
+      if (typeof req.body.like_count === 'number') recipe.like_count = Math.max(0, req.body.like_count);
+      if (typeof req.body.dislike_count === 'number') recipe.dislike_count = Math.max(0, req.body.dislike_count);
     }
+
+    await recipe.save();
+    res.json(recipe);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to cast vote', error: err.message });
+  }
 });
 
- ////////////
- router.get('/Ingredients/:id', async (req, res) => {
-    try {
-        const ingredient = await Ingredient.findOne({ id: req.params.id });
-        if (ingredient) res.json(ingredient);
-        else res.status(404).json({ message: 'Ingredient not found' });
-    } catch (error) {
-        console.error('Error fetching ingredient:', error);
-        res.status(500).json({ message: 'Error fetching ingredient' });
+router.post('/recipe/:id/reviews', optionalAuth, async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+
+    const comment = (req.body.comment || req.body.review || '').trim();
+    const rating = Math.min(5, Math.max(1, Number(req.body.rating) || 5));
+    const reviewer_name = (req.body.reviewer_name || req.user?.username || 'Home Chef').trim();
+
+    if (!comment) {
+      return res.status(400).json({ message: 'Review comment is required.' });
     }
+
+    recipe.review_list.push({ reviewer_name, rating, comment, date: new Date() });
+    await recipe.save();
+    res.status(201).json(recipe);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to submit review', error: err.message });
+  }
 });
 
-router.get('/Ingredients/:id/nutrition', async (req, res) => {
-    try {
-        const ingredient = await Ingredient.findOne({ id: req.params.id }, 'nutrition');
-        if (ingredient) res.json({ nutrition: ingredient.nutrition });
-        else res.status(404).json({ message: 'Nutrition details not found' });
-    } catch (error) {
-        console.error('Error fetching nutrition data:', error);
-        res.status(500).json({ message: 'Error fetching nutrition data' });
+router.post('/api/recipe/report/:id', optionalAuth, async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+
+    const reason = (req.body.reason || '').trim();
+    if (!reason) {
+      return res.status(400).json({ message: 'Report reason is required.' });
     }
+
+    recipe.reports.push({
+      user_id: req.user?.userId || null,
+      reporter_name: req.user?.username || 'Guest',
+      reason,
+      date: new Date(),
+    });
+    await recipe.save();
+    res.status(201).json({ message: 'Report submitted successfully', recipe });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to submit report', error: err.message });
+  }
 });
 
-router.put('/Ingredients/:id/nutrition', async (req, res) => {
-    const { nutrition } = req.body;
-    try {
-        const ingredient = await Ingredient.findOne({ id: req.params.id });
-        if (ingredient) {
-            ingredient.nutrition = nutrition;
-            const updatedIngredient = await ingredient.save();
-            res.json({ message: 'Nutrition updated successfully!', ingredient: updatedIngredient });
-        } else res.status(404).json({ message: 'Ingredient not found' });
-    } catch (error) {
-        console.error('Error updating nutrition:', error);
-        res.status(500).json({ message: 'Error updating nutrition' });
+// ==========================================
+// SEARCH (Partial, Regex-Safe, Deduplicated)
+// ==========================================
+router.get('/search-recipe-name', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    const results = await Recipe.find({ recipe_name: new RegExp(escapeRegex(q), 'i') });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+});
+
+router.get('/search-ingredient', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    const results = await Recipe.find({ ingredient_list: new RegExp(escapeRegex(q), 'i') });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+});
+
+router.get('/search-cuisine', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    const results = await Recipe.find({ cuisine: new RegExp(escapeRegex(q), 'i') });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+});
+
+router.get('/search-diet-type', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    const results = await Recipe.find({ diet_type: new RegExp(escapeRegex(q), 'i') });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+});
+
+router.get('/search-calories', async (req, res) => {
+  try {
+    const maxCal = Number(req.query.q);
+    if (Number.isNaN(maxCal) || maxCal <= 0) return res.json([]);
+    const results = await Recipe.find({ calories: { $lte: maxCal } }).sort({ calories: 1 });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed', error: err.message });
+  }
+});
+
+// ==========================================
+// INGREDIENTS
+// ==========================================
+router.get('/Ingredients', async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.category && req.query.category !== 'all') {
+      filter.category = new RegExp(`^${escapeRegex(req.query.category)}$`, 'i');
     }
+    if (req.query.q) {
+      filter.ingredient = new RegExp(escapeRegex(req.query.q), 'i');
+    }
+    const items = await Ingredient.find(filter).sort({ id: 1 });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch ingredients', error: err.message });
+  }
+});
+
+router.get('/Ingredients/:id', async (req, res) => {
+  try {
+    const param = req.params.id;
+    let item = null;
+    if (mongoose.Types.ObjectId.isValid(param) && String(param).length === 24) {
+      item = await Ingredient.findById(param);
+    }
+    if (!item && !Number.isNaN(Number(param))) {
+      item = await Ingredient.findOne({ id: Number(param) });
+    }
+    if (!item) return res.status(404).json({ message: 'Ingredient not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch ingredient', error: err.message });
+  }
 });
 
 router.get('/Ingredients/:id/recipes', async (req, res) => {
-    try {
-        const recipes = await Recipe.find({ ingredient_list: req.params.id });
-        res.json(recipes);
-    } catch (error) {
-        console.error('Error fetching recipes for ingredient:', error);
-        res.status(500).json({ message: 'Error fetching recipes for ingredient' });
+  try {
+    const param = req.params.id;
+    let item = null;
+    if (mongoose.Types.ObjectId.isValid(param) && String(param).length === 24) {
+      item = await Ingredient.findById(param);
     }
+    if (!item && !Number.isNaN(Number(param))) {
+      item = await Ingredient.findOne({ id: Number(param) });
+    }
+    if (!item) return res.json([]);
+    const matched = await Recipe.find({
+      ingredient_list: new RegExp(escapeRegex(item.ingredient), 'i'),
+    });
+    res.json(matched);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to find matching recipes', error: err.message });
+  }
+});
+
+// ==========================================
+// SPOONACULAR PROXY WITH AUTOMATIC LOCAL FALLBACK
+// ==========================================
+function mapLocalToSpoonShape(r) {
+  return {
+    id: `local-${r._id}`,
+    localId: r._id,
+    title: r.recipe_name,
+    image: r.image_link,
+    readyInMinutes: 30,
+    servings: r.no_of_servings || 2,
+    calories: r.calories || 350,
+    cuisine: r.cuisine,
+    diet_type: r.diet_type,
+    extendedIngredients: (r.ingredient_list || []).map((ing, i) => ({
+      id: `${r._id}-ing-${i}`,
+      original: ing,
+    })),
+    instructions: (r.recipe_procedure || []).join('\n'),
+    source: 'RannaBhai Kitchen',
+  };
+}
+
+router.get('/api/spoonacular/search', async (req, res) => {
+  const raw = (req.query.ingredients || '').trim();
+  if (!raw) return res.json({ source: 'RannaBhai Kitchen', results: [] });
+
+  const apiKey = process.env.SPOONACULAR_API_KEY;
+  if (apiKey) {
+    try {
+      const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
+        params: { ingredients: raw, number: 9, apiKey },
+        timeout: 6000,
+      });
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        return res.json({
+          source: 'Spoonacular',
+          results: response.data.map((r) => ({ ...r, source: 'Spoonacular' })),
+        });
+      }
+    } catch {
+      // Fall through cleanly to local MongoDB pantry matcher
+    }
+  }
+
+  try {
+    const terms = raw
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    const allRecipes = await Recipe.find();
+    const scored = allRecipes
+      .map((r) => {
+        const listLower = (r.ingredient_list || []).map((i) => i.toLowerCase());
+        const matched = terms.filter((t) => listLower.some((item) => item.includes(t)));
+        return {
+          ...mapLocalToSpoonShape(r),
+          usedIngredientCount: matched.length,
+          missedIngredientCount: Math.max(0, listLower.length - matched.length),
+        };
+      })
+      .filter((r) => r.usedIngredientCount > 0)
+      .sort((a, b) => b.usedIngredientCount - a.usedIngredientCount);
+
+    const fallback = scored.length > 0 ? scored : allRecipes.slice(0, 6).map(mapLocalToSpoonShape);
+    res.json({ source: 'RannaBhai Kitchen', results: fallback });
+  } catch (err) {
+    res.status(500).json({ message: 'Pantry search failed', error: err.message });
+  }
+});
+
+router.get('/api/spoonacular/recipe/:id', async (req, res) => {
+  const { id } = req.params;
+  if (id.startsWith('local-')) {
+    const mongoId = id.replace('local-', '');
+    const recipe = await findRecipeByParam(mongoId);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+    return res.json(mapLocalToSpoonShape(recipe));
+  }
+
+  const apiKey = process.env.SPOONACULAR_API_KEY;
+  if (apiKey) {
+    try {
+      const response = await axios.get(`https://api.spoonacular.com/recipes/${id}/information`, {
+        params: { apiKey },
+        timeout: 6000,
+      });
+      return res.json({ ...response.data, source: 'Spoonacular' });
+    } catch {
+      // Fallback to local recipe if external fails
+    }
+  }
+
+  const local = await findRecipeByParam(id);
+  if (local) return res.json(mapLocalToSpoonShape(local));
+  return res.status(404).json({ message: 'Recipe details unavailable right now.' });
+});
+
+router.get('/api/spoonacular/random', async (req, res) => {
+  const apiKey = process.env.SPOONACULAR_API_KEY;
+  if (apiKey) {
+    try {
+      const response = await axios.get('https://api.spoonacular.com/recipes/random', {
+        params: { number: 1, apiKey },
+        timeout: 6000,
+      });
+      const rec = response.data?.recipes?.[0];
+      if (rec) return res.json({ ...rec, source: 'Spoonacular' });
+    } catch {
+      // Fall back cleanly to a random local recipe
+    }
+  }
+
+  try {
+    const all = await Recipe.find();
+    if (!all.length) return res.status(404).json({ message: 'No recipes available' });
+    const pick = all[Math.floor(Math.random() * all.length)];
+    res.json(mapLocalToSpoonShape(pick));
+  } catch (err) {
+    res.status(500).json({ message: 'Could not load random recipe', error: err.message });
+  }
+});
+
+// ==========================================
+// AUTH, USER DASHBOARD & ADMIN
+// ==========================================
+router.post('/api/signup', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username?.trim() || !email?.trim() || !password) {
+      return res.status(400).json({ message: 'Username, email, and password are required.' });
+    }
+    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existing) {
+      return res.status(409).json({ message: 'An account with this email already exists.' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      username: username.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+    });
+    const token = jwt.sign(
+      { userId: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.status(201).json({
+      message: 'Account created successfully',
+      token,
+      user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Signup failed', error: err.message });
+  }
+});
+
+router.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email?.trim() || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) return res.status(401).json({ message: 'Invalid email or password.' });
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ message: 'Invalid email or password.' });
+
+    const token = jwt.sign(
+      { userId: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.json({
+      token,
+      user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Login failed', error: err.message });
+  }
+});
+
+router.get('/api/user/me', authenticateToken, async (req, res) => {
+  res.json({
+    id: req.user.userId,
+    username: req.user.username,
+    email: req.user.email,
+    isAdmin: Boolean(req.user.isAdmin),
+  });
+});
+
+router.get('/api/user/liked-recipes', authenticateToken, async (req, res) => {
+  try {
+    const recipes = await Recipe.find({ liked_by: req.user.userId });
+    res.json(recipes);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load liked recipes', error: err.message });
+  }
+});
+
+router.get('/api/user/reported-issues', authenticateToken, async (req, res) => {
+  try {
+    const recipes = await Recipe.find({ 'reports.user_id': req.user.userId });
+    const issues = [];
+    recipes.forEach((r) => {
+      (r.reports || []).forEach((rep) => {
+        if (String(rep.user_id) === String(req.user.userId)) {
+          issues.push({
+            _id: rep._id,
+            recipeId: r._id,
+            recipeName: r.recipe_name,
+            reason: rep.reason,
+            date: rep.date,
+          });
+        }
+      });
+    });
+    res.json(issues);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load reported issues', error: err.message });
+  }
+});
+
+// Unified Admin endpoints
+router.get('/api/admin/recipes', async (req, res) => {
+  try {
+    const recipes = await Recipe.find().sort({ createdAt: -1, id: 1 });
+    res.json(recipes);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load admin recipes', error: err.message });
+  }
+});
+
+router.get('/api/admin/reports', async (req, res) => {
+  try {
+    const recipes = await Recipe.find({ 'reports.0': { $exists: true } });
+    const reports = [];
+    recipes.forEach((r) => {
+      (r.reports || []).forEach((rep) => {
+        reports.push({
+          _id: rep._id,
+          recipeId: r._id,
+          recipeName: r.recipe_name,
+          reporter: rep.reporter_name || 'Guest',
+          reason: rep.reason,
+          date: rep.date,
+        });
+      });
+    });
+    res.json(reports);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to load reports', error: err.message });
+  }
+});
+
+router.delete('/api/admin/recipe/:id', async (req, res) => {
+  try {
+    const recipe = await findRecipeByParam(req.params.id);
+    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+    await Recipe.findByIdAndDelete(recipe._id);
+    res.json({ message: 'Recipe deleted successfully', id: recipe._id });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete recipe', error: err.message });
+  }
+});
+
+// ==========================================
+// FAQ & MEALS
+// ==========================================
+router.post('/add-new-faq', add_new_faq);
+router.get('/faqs', get_all_faq);
+router.delete('/delete-faq/:id', delete_faq);
+router.put('/update-faq/:id', update_faq);
+
+router.post('/add-new-meal', add_new_meal);
+router.get('/meals', get_all_meals);
+router.delete('/delete-meal/:id', delete_meal);
+router.put('/update-meal/:id', update_meal);
+
+// ==========================================
+// CONTENT, STORES & CONTACT
+// ==========================================
+router.get('/glossary', async (req, res) => {
+  try {
+    const terms = await CookingGlossary.find().sort({ term: 1 });
+    res.json(terms);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch glossary', error: err.message });
+  }
+});
+
+router.get('/health', async (req, res) => {
+  try {
+    const recs = await Recommendations.find().sort({ disease: 1 });
+    res.json(recs);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch health recommendations', error: err.message });
+  }
+});
+
+router.get('/stores', async (req, res) => {
+  try {
+    const lat = Number(req.query.latitude);
+    const lon = Number(req.query.longitude);
+    const radiusKm = Number(req.query.radius) || 25;
+
+    const stores = await GroceryStore.find().lean();
+    const enriched = stores
+      .map((s) => {
+        const coords = s.location?.coordinates || [90.4125, 23.8103];
+        const storeLon = coords[0];
+        const storeLat = coords[1];
+        const distanceKm =
+          !Number.isNaN(lat) && !Number.isNaN(lon)
+            ? Number(haversineKm(lat, lon, storeLat, storeLon).toFixed(2))
+            : null;
+        return {
+          ...s,
+          latitude: storeLat,
+          longitude: storeLon,
+          distanceKm,
+        };
+      })
+      .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+
+    const filtered =
+      !Number.isNaN(lat) && !Number.isNaN(lon)
+        ? enriched.filter((s) => s.distanceKm <= radiusKm)
+        : enriched;
+
+    res.json(filtered.length > 0 ? filtered : enriched);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch stores', error: err.message });
+  }
+});
+
+router.get('/about-us', async (req, res) => {
+  try {
+    const about = await About.findOne();
+    if (!about) {
+      return res.json({
+        title: 'About RannaBhai',
+        description:
+          'RannaBhai is your all-in-one culinary companion — combining authentic recipes, smart meal planning, nutrition calculators, local store discovery, and interactive food trivia.',
+        imageUrl: '',
+      });
+    }
+    res.json(about);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch about us', error: err.message });
+  }
+});
+
+router.post('/contact', async (req, res) => {
+  try {
+    const { email, website, message } = req.body;
+    if (!email?.trim() || !message?.trim()) {
+      return res.status(400).json({ message: 'Email and message are required.' });
+    }
+    const saved = await Contact.create({
+      email: email.trim(),
+      website: website?.trim() || 'Direct',
+      message: message.trim(),
+    });
+    res.status(201).json({ message: 'Message sent! Thank you for reaching out.', data: saved });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to submit contact form', error: err.message });
+  }
 });
 
 module.exports = router;

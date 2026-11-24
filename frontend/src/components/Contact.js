@@ -1,113 +1,89 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import "./../Customcss/Contact.css"; // Import the CSS
+import React, { useState } from 'react';
+import { Send } from 'lucide-react';
+import api from '../services/api';
 
-function Contact() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [selectData, setSelectData] = useState([]);
-  const [selectValue, setSelectValue] = useState("");
+const SOURCES = ['Google Search', 'Social Media', 'Friend or Family', 'University / Campus', 'GitHub / Portfolio', 'Other'];
 
-  // Fetch dropdown data on component mount
-  useEffect(() => {
-    let processing = true;
-    axiosFetchData(processing);
-    return () => {
-      processing = false;
-    };
-  }, []);
+export default function Contact() {
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState(SOURCES[0]);
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState(null);
+  const [sending, setSending] = useState(false);
 
-  const axiosFetchData = async (processing) => {
-    await axios
-      .get("http://localhost:1240/users")
-      .then((res) => {
-        if (processing) {
-          setSelectData(res.data);
-        }
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const axiosPostData = async () => {
-    const postData = {
-      email: email,
-      website: selectValue,
-      message: message,
-    };
-    try {
-      const response = await axios.post("http://localhost:1240/contact", postData);
-      setError(<p className="success">{response.data}</p>);
-    } catch (err) {
-      console.error("Axios Error:", err);
-      setError(<p className="error">Network Error: {err.message}</p>);
-    }
-  };
-
-  const SelectDropdown = () => (
-    <select
-      value={selectValue}
-      onChange={(e) => setSelectValue(e.target.value)}
-      className="form-select"
-    >
-      <option value="" key="none">
-        -- Select One --
-      </option>
-      {selectData.map((item) => (
-        <option value={item.website} key={item.website}>
-          {item.website}
-        </option>
-      ))}
-    </select>
-  );
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!message) {
-      setError(<p className="required">Message is empty. Please type a message.</p>);
-    } else {
-      setError("");
-      axiosPostData();
+    setStatus(null);
+    setSending(true);
+    try {
+      const res = await api.post('/contact', { email, website, message });
+      setStatus({ type: 'success', text: res.data.message || 'Message sent successfully!' });
+      setEmail('');
+      setMessage('');
+    } catch (err) {
+      setStatus({ type: 'error', text: err.response?.data?.message || 'Failed to send message.' });
+    } finally {
+      setSending(false);
     }
   };
 
   return (
-    <div className="contact-page">
-      <div className="contact-container">
-        <h1>Contact Us</h1>
-        <form className="contact-form">
-          <label>Email</label>
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Get In Touch</div>
+          <h1 className="rb-title">Contact RannaBhai</h1>
+          <p className="rb-subtitle">
+            Have a feature idea, recipe request, or partnership inquiry? Drop us a note anytime.
+          </p>
+        </div>
+      </div>
+
+      {status && (
+        <div className={`rb-alert ${status.type === 'success' ? 'rb-alert-success' : 'rb-alert-error'}`}>
+          {status.text}
+        </div>
+      )}
+
+      <form className="rb-card" style={{ maxWidth: '640px' }} onSubmit={handleSubmit}>
+        <div className="rb-field">
+          <label className="rb-label">Email Address *</label>
           <input
-            type="text"
-            id="email"
-            name="email"
+            type="email"
+            className="rb-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-input"
+            placeholder="you@example.com"
+            required
           />
+        </div>
 
-          <label>How Did You Hear About Us?</label>
-          <SelectDropdown />
+        <div className="rb-field">
+          <label className="rb-label">How Did You Hear About Us?</label>
+          <select className="rb-select" value={website} onChange={(e) => setWebsite(e.target.value)}>
+            {SOURCES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <label>Message</label>
+        <div className="rb-field">
+          <label className="rb-label">Message *</label>
           <textarea
-            id="message"
-            name="message"
+            className="rb-textarea"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="form-textarea"
-          ></textarea>
+            placeholder="Tell us what's on your mind..."
+            required
+          />
+        </div>
 
-          {error}
-
-          <button type="submit" onClick={handleSubmit} className="form-button">
-            Submit
-          </button>
-        </form>
-      </div>
+        <button type="submit" className="rb-btn rb-btn-primary" disabled={sending}>
+          <Send size={15} /> {sending ? 'Sending...' : 'Send Message'}
+        </button>
+      </form>
     </div>
   );
 }
-
-export default Contact;

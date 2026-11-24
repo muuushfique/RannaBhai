@@ -1,37 +1,68 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const routesHandler = require('./routes/handler.js');
 const mongoose = require('mongoose');
-require('dotenv/config');
-const cors = require('cors')
+const cors = require('cors');
+require('dotenv').config();
 
+const routesHandler = require('./routes/handler');
 
 const app = express();
-app.use(bodyParser.urlencoded({extended:false}));
-app.use(bodyParser.json());
 
-const corsOptions = {
-    origin: '*',
+app.use(
+  cors({
+    origin: true,
     credentials: true,
-    optionSuccessStatus: 200
+    optionsSuccessStatus: 200,
+  })
+);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '5mb' }));
+
+// Cached MongoDB connection for both local server & Vercel serverless
+let cachedConn = null;
+async function ensureDB() {
+  if (mongoose.connection.readyState === 1) return mongoose.connection;
+  if (!cachedConn) {
+    cachedConn = mongoose.connect(process.env.DB_URI);
+  }
+  await cachedConn;
+  return mongoose.connection;
 }
 
-app.use(cors(corsOptions))
-app.use('/', routesHandler)
-
-const PORT = process.env.PORT
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+app.use(async (req, res, next) => {
+  try {
+    await ensureDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ message: 'Database connection error', error: err.message });
+  }
 });
 
-//MongoDB Connection
-const dbOptions = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  };
-  
-mongoose.connect(process.env.DB_URI, dbOptions)
-.then(() => console.log('DB Connected!'))
-.catch(err => {
-    console.log('Cannot connect to DB');
-})
+app.get(['/api/health', '/health-check'], (req, res) => {
+  res.json({
+    status: 'ok',
+    dbState: mongoose.connection.readyState,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Mount under /api (for Vercel production) and / (for local dev)
+app.use('/api', routesHandler);
+app.use('/', routesHandler);
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 1240;
+  ensureDB()
+    .then(() => {
+      console.log('MongoDB connected');
+      app.listen(PORT, () => {
+        console.log(`RannaBhai backend running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('MongoDB connection error:', err.message);
+      process.exit(1);
+    });
+}
+
+module.exports = app;

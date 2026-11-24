@@ -1,96 +1,63 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { Search, BookOpen } from 'lucide-react';
+import api from '../services/api';
 
-const Glossary = () => {
-  const [glossaryTerms, setGlossaryTerms] = useState([]); // State to store glossary terms
-  const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
-  const [loading, setLoading] = useState(true); // State to manage loading
-  const [error, setError] = useState(null); // State to handle errors
+export default function Glossary() {
+  const [terms, setTerms] = useState([]);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Fetch glossary terms from the backend
   useEffect(() => {
-    const fetchGlossaryTerms = async () => {
-      try {
-        console.log("Fetching glossary terms...");
-        const response = await axios.get("http://localhost:1240/glossary"); // Replace with your backend endpoint
-        console.log("Response:", response.data);
-        setGlossaryTerms(response.data); // Set the glossary terms
-        setLoading(false); // Set loading to false after data is fetched
-      } catch (err) {
-        console.error("Error fetching glossary terms:", err);
-        setError("Failed to fetch glossary terms. Please try again later.");
-        setLoading(false); // Set loading to false even if there's an error
-      }
-    };
-
-    fetchGlossaryTerms();
+    api
+      .get('/glossary')
+      .then((res) => setTerms(res.data || []))
+      .catch(() => setTerms([]))
+      .finally(() => setLoading(false));
   }, []);
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
 
-  // Filter glossary terms based on the search term
-  const filteredTerms = glossaryTerms.filter((term) =>
-    term.term.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = terms.filter(
+    (t) =>
+      String(t.term || '').toLowerCase().includes(query.toLowerCase()) ||
+      String(t.definition || '').toLowerCase().includes(query.toLowerCase())
   );
-    // Conditional rendering
-    if (loading) {
-      return (
-        <div className="faq-container">
-          <h1 className="faq-title">Cooking Glossary</h1>
-          <div className="faq-list">
-            <p className="loading">Loading glossary terms...</p>
-          </div>
+
+  return (
+    <div className="rb-page">
+      <div className="rb-page-header">
+        <div>
+          <div className="rb-eyebrow">Culinary Dictionary</div>
+          <h1 className="rb-title">Cooking Glossary</h1>
+          <p className="rb-subtitle">Master essential kitchen techniques, cuts, and culinary terminology.</p>
         </div>
-      );
-    }
-  
-    if (error) {
-      return (
-        <div className="faq-container">
-          <h1 className="faq-title">Cooking Glossary</h1>
-          <div className="faq-list">
-            <p className="error">{error}</p>
-          </div>
-        </div>
-      );
-    }
-  
-    return (
-      <div className="faq-container">
-        <h1 className="faq-title">Cooking Glossary</h1>
-        <input
-          type="text"
-          placeholder="Search for a term..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "20px",
-            fontSize: "16px",
-          }}
-        />
-        <div className="faq-list">
-          {filteredTerms.length === 0 ? (
-            <p className="loading">No glossary terms available at the moment.</p>
-          ) : (
-            filteredTerms.map((term, index) => (
-              <div key={index} className="translucent-box" style={{
-                backgroundColor: "rgba(255, 255, 255, 0.7)",
-                padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              }}>
-                <div className="faq-question">{term.term}</div>
-                <div className="faq-answer">{term.definition}</div>
-              </div>
-            ))
-          )}
+        <div style={{ position: 'relative', minWidth: '250px' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+          <input
+            className="rb-input"
+            style={{ paddingLeft: '2.2rem' }}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search culinary terms..."
+          />
         </div>
       </div>
-    );
-  }
-  
-export default Glossary;
+
+      {loading ? (
+        <div className="rb-empty">Loading glossary terms...</div>
+      ) : filtered.length === 0 ? (
+        <div className="rb-empty">No matching terms found.</div>
+      ) : (
+        <div className="rb-grid-2">
+          {filtered.map((item) => (
+            <article key={item._id} className="rb-card rb-card-hover">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                <BookOpen size={16} color="var(--accent)" />
+                <h2 style={{ fontSize: '1.22rem' }}>{item.term}</h2>
+              </div>
+              <p style={{ fontSize: '0.92rem', color: 'var(--muted)' }}>{item.definition}</p>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
